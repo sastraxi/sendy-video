@@ -1,5 +1,5 @@
 ## Things to do
-- [ ] welcome page and "login with Google" link
+- [x] welcome page and "login with Google" link
 - [ ] set up mongodb connection
 - [ ] add next-auth
 - [ ] mongo: projects collection and show my projects on logged-in page
