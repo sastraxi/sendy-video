@@ -1,4 +1,15 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## Things to do
+- [ ] welcome page and "login with Google" link
+- [ ] set up mongodb connection
+- [ ] add next-auth
+- [ ] mongo: projects collection and show my projects on logged-in page
+- [ ] create project page
+  - [ ] choose a new top-level folder to create or select an existing one by searching (autocomplete)
+  - [ ] I think the folder can be moved elsewhere if we keep its folderId
+- [ ] view project page
+- [ ] project submission page (via unique url)
+
+---
 
 ## Getting Started
 
