@@ -1,9 +1,9 @@
+import { ClientSafeProvider, getProviders, signIn, getSession } from 'next-auth/client'
 import Head from 'next/head'
-import Image from 'next/image'
-import Link from 'next/link';
 
-
-export default function Home() {
+export default function Login({ providers }: {
+  providers: Record<string, ClientSafeProvider>
+}) {
   return (
     <div>
       <Head>
@@ -23,14 +23,31 @@ export default function Home() {
         </p>
 
         <div>
-          <Link href="/auth/login">
-            <a>
-              <h2>Get started</h2>
-              <p>Sign in with Google to create a project</p>
-            </a>
-          </Link>
+          {Object.values(providers).map(provider => (
+            <div key={provider.name}>
+              <button onClick={() => signIn(provider.id)}>Sign in with {provider.name}</button>
+            </div>
+          ))}
         </div>
       </main>
     </div>
   )
+}
+
+export async function getServerSideProps(context: any) {
+  const session = await getSession(context);
+  console.log(session);
+  if (session) {
+    return {
+      redirect: {
+        permanent: false,
+        destination: '/projects',
+      },
+    };
+  }
+
+  const providers = await getProviders();
+  return {
+    props: { providers }
+  };
 }

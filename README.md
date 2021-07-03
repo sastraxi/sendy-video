@@ -1,13 +1,22 @@
 ## Things to do
 - [x] welcome page and "login with Google" link
-- [ ] set up mongodb connection
-- [ ] add next-auth
+- [x] add next-auth
+  - [x] set up mongodb connection
+  - https://blog.devtylerjones.com/how_to_configure_next-auth_with_mongodb_atlas_mongoose
+  - https://github.com/nextauthjs/next-auth/issues/671
+- [ ] styled-components, fonts, logo
 - [ ] mongo: projects collection and show my projects on logged-in page
 - [ ] create project page
   - [ ] choose a new top-level folder to create or select an existing one by searching (autocomplete)
-  - [ ] I think the folder can be moved elsewhere if we keep its folderId
+    - https://github.com/kentcdodds/match-sorter
+    - downshift
+  - folder can be moved without losing connectivity
 - [ ] view project page
 - [ ] project submission page (via unique url)
+  - [ ] https://github.com/google/google-api-javascript-client
+  - [ ] chunked xfer after recording is finished
+  - [ ] max size or max time
+  - [ ] reset (discard current video)
 
 ---
 
