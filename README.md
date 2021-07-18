@@ -4,7 +4,7 @@
   - [x] set up postgres connection
 - [x] set up prisma
 - [x] postgres: projects collection and show my projects on logged-in page
-- [ ] styled-components, fonts, logo
+- [ ] styled-components
 - [ ] create project page
   - [ ] automatically create "Sendy Projects" folder
   - [ ] automatically create sub-folder with project name (req. unique names per user)
@@ -13,9 +13,16 @@
 - [ ] project submission page (via unique url)
   - [ ] https://github.com/google/google-api-javascript-client
   - [ ] xfer after recording is finished
-  - [ ] max size or max time
   - [ ] reset (discard current video)
   - [ ] upload my own video
+- [ ] make things not look like trash (fonts, logo, favicon, <head>)
+- [ ] list submissions on project page
+  - [ ] direct links to videos
+- [ ] extra constraints
+  - [ ] max length
+  - [ ] max size per submission
+  - [ ] max size for all submissions
+  - [ ] max number of submissions
 
 ---
 
