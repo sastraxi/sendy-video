@@ -1,9 +1,10 @@
 import Head from "next/head";
 import { getSession } from "next-auth/client";
 import { GetServerSideProps } from "next";
-import prisma from "../utils/db";
+import prisma from "../../utils/db";
 import { Project } from "@prisma/client";
-import ProjectsTable from '../components/ProjectsTable'
+import ProjectsTable from '../../components/ProjectsTable'
+import Link from 'next/link'
 
 type PropTypes = {
   projects: Project[];
@@ -21,7 +22,10 @@ export default function ProjectsList({ projects }: PropTypes) {
       <main>
         <h1>sendy 📷 | projects</h1>
 
-        <button>New Project</button>
+        <Link href="/projects/new" passHref>
+          <button>New Project</button>
+        </Link>
+
         {projects.length === 0 && <p>You have no projects.</p>}
         {projects.length > 0 && <ProjectsTable projects={projects} />}
       </main>
