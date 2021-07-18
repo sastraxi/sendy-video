@@ -68,7 +68,7 @@ model Project {
   userEmail   String
   name        String
   markdown    String?
-  magicLink   String       @unique
+  magicCode   String       @unique
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
   user        User         @relation(fields: [userEmail], references: [email])
