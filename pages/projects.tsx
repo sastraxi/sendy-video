@@ -1,9 +1,15 @@
-import Head from 'next/head'
-import { getSession } from 'next-auth/client'
-import { GetServerSideProps } from 'next'
-import prisma from '../utils/db';
+import Head from "next/head";
+import { getSession } from "next-auth/client";
+import { GetServerSideProps } from "next";
+import prisma from "../utils/db";
+import { Project } from "@prisma/client";
+import ProjectsTable from '../components/ProjectsTable'
 
-export default function ProjectsList() {
+type PropTypes = {
+  projects: Project[];
+};
+
+export default function ProjectsList({ projects }: PropTypes) {
   return (
     <div>
       <Head>
@@ -13,16 +19,14 @@ export default function ProjectsList() {
       </Head>
 
       <main>
-        <h1>
-          sendy 📷 | projects
-        </h1>
+        <h1>sendy 📷 | projects</h1>
 
-        <p>
-          You have no projects.
-        </p>
+        <button>New Project</button>
+        {projects.length === 0 && <p>You have no projects.</p>}
+        {projects.length > 0 && <ProjectsTable projects={projects} />}
       </main>
     </div>
-  )
+  );
 }
 
 export const getServerSideProps: GetServerSideProps = async ({ req }) => {
@@ -31,7 +35,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
     return {
       redirect: {
         permanent: false,
-        destination: '/',
+        destination: "/",
       },
     };
   }
@@ -39,9 +43,9 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
   const projects = await prisma.project.findMany({
     where: {
       userEmail: email!,
-    }
-  })
+    },
+  });
   return {
     props: { projects },
-  }
-}
+  };
+};
