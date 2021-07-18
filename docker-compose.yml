@@ -1,37 +1,23 @@
 # Use root/example as user/password credentials
 version: '3.6'
 services:
-  mongo:
-    image: mongo
+  postgres:
+    image: postgres:13
+    shm_size: 1g
+    container_name: sendy-postgres-dev
     restart: always
     networks:
-      - dev-network
-    ports:
-      - 27017:27017
+      - sendy-dev-network
+    volumes:
+      - ./data/dev/postgres:/var/lib/postgresql/data
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: example
-      MONGO_INITDB_DATABASE: sendy
-
-  mongo-express:
-    image: mongo-express
-    restart: always
-    depends_on:
-      - mongo
-    networks:
-      - dev-network
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_DB: "${POSTGRES_DB}"
     ports:
-      - 8081:8081
-    environment:
-      ME_CONFIG_MONGODB_SERVER: mongo
-      ME_CONFIG_MONGODB_PORT: 27017
-      ME_CONFIG_MONGODB_ENABLE_ADMIN: 'true'
-      ME_CONFIG_MONGODB_ADMINUSERNAME: root
-      ME_CONFIG_MONGODB_ADMINPASSWORD: example
-      ME_CONFIG_MONGODB_AUTH_DATABASE: admin
-      ME_CONFIG_MONGODB_AUTH_USERNAME: root
-      ME_CONFIG_MONGODB_AUTH_PASSWORD: example
+      - "${POSTGRES_PORT}:5432"
 
 networks:
-  dev-network:
-    driver: bridge      
+  sendy-dev-network:
+    driver: bridge
+  
