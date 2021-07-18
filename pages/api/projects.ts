@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next'
 import generateCode from '../../utils/generate-code';
 import prisma from '../../utils/db';
 import { getSession } from 'next-auth/client';
+import { Prisma, Project } from '@prisma/client';
 
 type Payload = {
   name: string,
@@ -29,18 +30,34 @@ export default async function handler(
       if (!payload.name) {
         res.status(400).end('Bad request: name must be provided')
       }
-      const magicCode = generateCode();
-      const project = await prisma.project.create({
-        data: {
-          name: payload.name,
-          markdown: payload.markdown,
-          userEmail: session!.user!.email!,
-          magicCode,
+      let project: Project | undefined = undefined;
+      while (!project) {
+        const magicCode = generateCode();
+        try {
+          project = await prisma.project.create({
+            data: {
+              name: payload.name,
+              markdown: payload.markdown,
+              userEmail: session!.user!.email!,
+              magicCode,
+            }
+          });
+        } catch (e) {
+          if (e instanceof Prisma.PrismaClientKnownRequestError) {
+            // The .code property can be accessed in a type-safe manner
+            if (e.code === 'P2002') {
+              console.log(`Magic code ${magicCode} already in use; generating a new one...`);
+            } else {
+              throw e;
+            }
+          } else {
+            throw e;
+          }
         }
-      });
+      }
       return res.status(200).json({
         projectId: project.id,
-        magicCode,
+        magicCode: project.magicCode,
       });
     }
     default: {
