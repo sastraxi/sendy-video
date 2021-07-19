@@ -1,17 +1,14 @@
 import NextAuth from "next-auth"
-import Providers from "next-auth/providers"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
-import prisma from '../../../utils/db';
+import prisma from '../../../utils/db'
+import { createGoogleProvider } from '../../../services/drive'
 
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
 export default NextAuth({
   // https://next-auth.js.org/configuration/providers
   providers: [
-    Providers.Google({
-      clientId: process.env.GOOGLE_ID,
-      clientSecret: process.env.GOOGLE_SECRET,
-    }),
+    createGoogleProvider(),
   ],
 
   adapter: PrismaAdapter(prisma),
@@ -84,5 +81,5 @@ export default NextAuth({
   events: {},
 
   // Enable debug messages in the console if you are having problems
-  debug: true,
+  debug: false,
 })

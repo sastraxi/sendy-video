@@ -4,9 +4,9 @@
   - [x] set up postgres connection
 - [x] set up prisma
 - [x] postgres: projects collection and show my projects on logged-in page
-- [ ] styled-components
+- [x] styled-components
 - [ ] create project page
-  - [ ] automatically create "Sendy Projects" folder
+  - [x] automatically create "Sendy Projects" folder
   - [ ] automatically create sub-folder with project name (req. unique names per user)
     - folder can be moved without losing connectivity due to gdrive file IDs
 - [ ] view project page
@@ -23,6 +23,9 @@
   - [ ] max size per submission
   - [ ] max size for all submissions
   - [ ] max number of submissions
+  - [ ] require (google) auth
+  - [ ] require email validation (?)
+- deployment
 
 ---
 

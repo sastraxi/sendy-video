@@ -11,8 +11,11 @@
   "dependencies": {
     "@next-auth/prisma-adapter": "^0.5.3",
     "@prisma/client": "2.27.0",
+    "axios": "^0.21.1",
     "babel-plugin-superjson-next": "^0.3.0",
     "chalk": "^4.1.1",
+    "google-auth-library": "^7.3.0",
+    "googleapis": "^82.0.0",
     "next": "11.0.1",
     "next-auth": "^3.27.1",
     "react": "17.0.2",
