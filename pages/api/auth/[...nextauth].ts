@@ -6,18 +6,11 @@ import { createGoogleProvider } from '../../../services/drive'
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
 export default NextAuth({
-  // https://next-auth.js.org/configuration/providers
   providers: [
     createGoogleProvider(),
   ],
-
   adapter: PrismaAdapter(prisma),
-
-  // The secret should be set to a reasonably long random string.
-  // It is used to sign cookies and to sign and encrypt JSON Web Tokens, unless
-  // a separate secret is defined explicitly for encrypting the JWT.
   secret: process.env.AUTH_SECRET,
-
   session: {
     // Use JSON Web Tokens for session instead of database sessions.
     // This option can be used with or without a database for users/accounts.
@@ -31,20 +24,6 @@ export default NextAuth({
     // Use it to limit write operations. Set to 0 to always update the database.
     // Note: This option is ignored if using JSON Web Tokens
     // updateAge: 24 * 60 * 60, // 24 hours
-  },
-
-  // JSON Web tokens are only used for sessions if the `jwt: true` session
-  // option is set - or by default if no database is specified.
-  // https://next-auth.js.org/configuration/options#jwt
-  jwt: {
-    // A secret to use for key generation (you should set this explicitly)
-    // secret: 'INp8IvdIyeMcoGAgFGoA61DdBglwwSqnXJZkgz8PSnw',
-    // Set to true to use encryption (default: false)
-    // encryption: true,
-    // You can define your own encode/decode functions for signing and encryption
-    // if you want to override the default behaviour.
-    // encode: async ({ secret, token, maxAge }) => {},
-    // decode: async ({ secret, token, maxAge }) => {},
   },
 
   // You can define custom pages to override the built-in ones. These will be regular Next.js pages
@@ -67,9 +46,9 @@ export default NextAuth({
     async signIn(user, account, profile) {
       if (!user.email) {
         console.error('Tried to sign in with user without an email', user);
-        return false
+        return false;
       }
-      return true
+      return true;
     },
     // async redirect(url, baseUrl) { return baseUrl },
     // async session(session, user) { return session },
@@ -82,4 +61,4 @@ export default NextAuth({
 
   // Enable debug messages in the console if you are having problems
   debug: false,
-})
+});

@@ -35,6 +35,10 @@ const REDIRECT_URI = `${process.env.NEXTAUTH_URL}/api/auth/callback/google`;
  * will reject.
  */
 export const createClient = async (user: User, account?: Account) => {
+  if (typeof window !== 'undefined') {
+    throw new Error('This service can only be used on the backend.');
+  }
+
   if (account && account.providerId !== PROVIDER_ID) {
     console.error(`Account provided was not a ${PROVIDER_ID} account.`, account);
     throw new Error(`Account provided was not a ${PROVIDER_ID} account.`);
@@ -53,8 +57,8 @@ export const createClient = async (user: User, account?: Account) => {
   const client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
   client.setCredentials({
     access_token: acct.accessToken,
-    refresh_token: acct.refreshToken,
-    expiry_date: acct.accessTokenExpires?.valueOf(),
+    refresh_token: acct.refreshToken || undefined,
+    expiry_date: acct.accessTokenExpires?.valueOf() || undefined,
     scope: SCOPES_STRING,
   });
   const drive = google.drive({ version: 'v3', auth: client });
