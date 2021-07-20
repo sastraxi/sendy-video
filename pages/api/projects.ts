@@ -3,6 +3,10 @@ import generateCode from '../../utils/generate-code';
 import prisma from '../../utils/db';
 import { getSession } from 'next-auth/client';
 import { Prisma, Project } from '@prisma/client';
+import {
+  createDriveClient,
+  PROVIDER_ID as GOOGLE_PROVIDER_ID,
+} from '../../services/drive';
 
 type Payload = {
   name: string,
@@ -12,6 +16,7 @@ type Payload = {
 type Data = {
   projectId: number,
   magicCode: string,
+  driveFileId: string,
 }
 
 export default async function handler(
@@ -23,6 +28,7 @@ export default async function handler(
   if (!session?.user) {
     res.status(401).end('You must be logged in to use this route')
   }
+  const email = session!.user!.email!;
 
   const payload = query as Payload
   switch (method) {
@@ -30,6 +36,7 @@ export default async function handler(
       if (!payload.name) {
         res.status(400).end('Bad request: name must be provided')
       }
+
       let project: Project | undefined = undefined;
       while (!project) {
         const magicCode = generateCode();
@@ -38,7 +45,7 @@ export default async function handler(
             data: {
               name: payload.name,
               markdown: payload.markdown,
-              userEmail: session!.user!.email!,
+              userEmail: email,
               magicCode,
             }
           });
@@ -55,9 +62,34 @@ export default async function handler(
           }
         }
       }
+
+      // FIXME: janky, wish we had the user available immediately on every req
+      // (and could thus change userEmail to userId in all relations)
+      const user = await prisma.user.findUnique({
+        where: {
+          email: session!.user!.email!,
+        },
+        include: {
+          accounts: true,
+        }
+      })
+      const googleAccount = user?.accounts.find(a => a.providerId === GOOGLE_PROVIDER_ID);
+      const drive = await createDriveClient(user!, googleAccount);
+      await drive.ensureTopLevelFolderId();
+      const driveFileId = await drive.createFolder(`${project.name} (${project.id})`);
+      await prisma.project.update({
+        where: {
+          id: project.id,
+        },
+        data: {
+          driveFileId,
+        },
+      });
+
       return res.status(200).json({
         projectId: project.id,
         magicCode: project.magicCode,
+        driveFileId,
       });
     }
     default: {

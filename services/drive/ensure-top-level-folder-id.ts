@@ -9,7 +9,7 @@ const TOP_LEVEL_FOLDER_NAME = 'Sendy Projects';
  * in the given user's Drive. Creates the folder if it does not already
  * exist.
  */
-const ensureTopLevelFolderId = async (user: User, drive: drive_v3.Drive) => {
+const ensureTopLevelFolderId = (user: User, drive: drive_v3.Drive) => async () => {
   if (!user.driveFileId) {
     const response = await drive.files.create({
       requestBody: {

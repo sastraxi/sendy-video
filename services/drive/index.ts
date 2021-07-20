@@ -7,7 +7,7 @@ import createFolder from './create-folder';
 import ensureTopLevelFolderId from './ensure-top-level-folder-id';
 import startResumableUpload from './start-resumable-upload';
 
-const PROVIDER_ID = 'google';
+export const PROVIDER_ID = 'google';
 const CLIENT_ID = process.env.GOOGLE_ID;
 const CLIENT_SECRET = process.env.GOOGLE_SECRET;
 
@@ -34,7 +34,7 @@ const REDIRECT_URI = `${process.env.NEXTAUTH_URL}/api/auth/callback/google`;
  * it will be looked up. Calling this function with a non-Google account
  * will reject.
  */
-export const createClient = async (user: User, account?: Account) => {
+export const createDriveClient = async (user: User, account?: Account) => {
   if (typeof window !== 'undefined') {
     throw new Error('This service can only be used on the backend.');
   }
