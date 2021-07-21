@@ -9,6 +9,10 @@ import Link from 'next/link'
 import { Project, Submission } from "@prisma/client";
 import VideoBanner from '../../components/VideoBanner';
 import ReactMarkdown from "react-markdown";
+import SplashModal from "../../components/SplashModal";
+import ChakraUIRenderer from 'chakra-ui-markdown-renderer';
+
+import { Avatar, Center, Container, Flex, Box, Text, Badge, Button } from "@chakra-ui/react"
 
 export type ProjectAndYourSubmissions = Project & {
   _count: {
@@ -20,6 +24,7 @@ export type ProjectAndYourSubmissions = Project & {
   /* owner of this project */
   user: {
     name: string | null,
+    image: string | null,
   },
 };
 
@@ -40,7 +45,10 @@ export default function Submit({ project }: PropTypes) {
     return (
       <div>
         <Header />
-        <NotFoundMessage />
+        <SplashModal
+          heading="Project not found"
+          message="The link you clicked is invalid, or has expired."
+        />
       </div>
     )
   }
@@ -49,7 +57,10 @@ export default function Submit({ project }: PropTypes) {
     return (
       <div>
         <Header />
-        <ClosedMessage reason="maximum number of submissions" />
+        <SplashModal
+          heading="Submissions closed"
+          message="This project has reached its maximum number of submissions."
+        />
       </div>
     )
   }
@@ -58,7 +69,10 @@ export default function Submit({ project }: PropTypes) {
     return (
       <div>
         <Header />
-        <ClosedMessage reason="you have already submitted the maximum number of submissions" />
+        <SplashModal
+          heading="Submissions closed"
+          message="You have already submitted the maximum number of submissions to this project."
+        />
       </div>
     )
   }
@@ -70,13 +84,24 @@ export default function Submit({ project }: PropTypes) {
       <VideoBanner
         maxLength={project.maxSubmissionLength || undefined}
       />
-      <Content>
-        <Avatar name={project.user.name} />
-        {project.markdown && <ReactMarkdown>{project.markdown}</ReactMarkdown>}
-        <Figure>
-          <button>Submit</button>
-        </Figure>
-      </Content>
+      <Container marginTop="6">
+        <Flex>
+          <Avatar
+            name={project.user.name || undefined}
+            src={project.user.image || undefined}
+          />
+          <Box ml="3">
+            <Text fontWeight="bold">
+              {project.user.name}
+            </Text>
+            <Text fontSize="sm">Project Owner</Text>
+          </Box>
+        </Flex>
+        {project.markdown && <ReactMarkdown components={ChakraUIRenderer()}>{project.markdown}</ReactMarkdown>}
+        <Center>
+          <Button>Submit my video</Button>
+        </Center>
+      </Container>
     </div>
   );
 }
@@ -100,6 +125,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
       user: {
         select: {
           name: true,
+          image: true,
         },
       },
     },

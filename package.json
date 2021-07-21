@@ -9,13 +9,16 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@emotion/react": "^11.4.0",
-    "@emotion/styled": "^11.3.0",
+    "@chakra-ui/react": "^1.6.5",
+    "@emotion/react": "^11",
+    "@emotion/styled": "^11",
     "@next-auth/prisma-adapter": "^0.5.3",
     "@prisma/client": "2.27.0",
     "axios": "^0.21.1",
     "babel-plugin-superjson-next": "^0.3.0",
+    "chakra-ui-markdown-renderer": "^3.0.1",
     "chalk": "^4.1.1",
+    "framer-motion": "^4",
     "google-auth-library": "^7.3.0",
     "googleapis": "^82.0.0",
     "next": "11.0.1",
@@ -23,6 +26,7 @@
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-hook-form": "^7.11.1",
+    "react-icons": "^4.2.0",
     "react-markdown": "^6.0.2",
     "superjson": "^1.7.4"
   },
