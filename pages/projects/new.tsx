@@ -43,9 +43,7 @@ export default function NewProject(_props: any) {
   const watched = watch(); // TODO: useWatch and sub-components
   const onSubmit = handleSubmit(async (data: ProjectFormData) => {
     if (!data.ssoMaxSubmissions) delete data.ssoMaxSubmissions;
-    console.log('submit', data);
     const response = await axios.post('/api/projects', data);
-    console.log('response', response);
     const { projectId } = response.data;
     router.push(`/projects/${projectId}`);
   });
@@ -218,16 +216,3 @@ export default function NewProject(_props: any) {
     </div>
   );
 }
-
-// export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
-//   const session = await getSession({ req });
-//   if (!session?.user) {
-//     return {
-//       redirect: {
-//         permanent: false,
-//         destination: "/",
-//       },
-//     };
-//   }
-//   return { props: { project } };
-// };

@@ -74,6 +74,7 @@ model Project {
   isOpen             Boolean
   magicCode          String          @unique
   folderFileId       String?
+  folderWebLink      String?
 
   ssoEnforced        Boolean         @default(false)
   ssoMaxSubmissions  Int?

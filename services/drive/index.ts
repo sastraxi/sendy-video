@@ -5,6 +5,7 @@ import prisma from "../../utils/db";
 import createFolder from './create-folder';
 
 import ensureTopLevelFolderId from './ensure-top-level-folder-id';
+import getWebLink from './get-web-link';
 import startResumableUpload from './start-resumable-upload';
 
 export const PROVIDER_ID = 'google';
@@ -67,5 +68,6 @@ export const createDriveClient = async (user: User, account?: Account) => {
     ensureTopLevelFolderId: ensureTopLevelFolderId(user, drive),
     createFolder: createFolder(user, drive),
     startResumableUpload: startResumableUpload(user, client),
+    getWebLink: getWebLink(user, drive),
   };
 };

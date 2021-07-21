@@ -14,10 +14,13 @@ const createFolder = (user: User, drive: drive_v3.Drive) =>
           mimeType: 'application/vnd.google-apps.folder',
           parents: [user.rootFileId!], // TODO: call ensuretoplevelfolderid
       },
-      fields: 'id',
+      fields: ['id', 'webViewLink'].join(', '),
     });
     console.log('created folder', response);
-    return response.data.id!;
+    return {
+      id: response.data.id!,
+      webLink: response.data.webViewLink!,
+    };
   };
 
 export default createFolder;
