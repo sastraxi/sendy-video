@@ -1,10 +1,7 @@
 {
   "presets": ["next/babel"],
   "plugins": [
+    ["@emotion"],
     ["superjson-next", { "exclude": [] }],
-    [
-      "babel-plugin-styled-components",
-      { "ssr": true, "displayName": true, "preprocess": false }
-    ]
   ]
 }

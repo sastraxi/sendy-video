@@ -81,9 +81,11 @@ model Project {
   ssoSharedVideos    Boolean         @default(true)
   ssoDomain          String?
 
-  maxSubmissions     Int?
-  maxBytes           Int?
-  closesAt           DateTime?
+  maxSubmissions      Int?
+  maxSubmissionBytes  Int?
+  maxSubmissionLength Int?
+  maxBytesTotal       Int?
+  closesAt            DateTime?
 
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt

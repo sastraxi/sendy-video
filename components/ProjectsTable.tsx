@@ -1,6 +1,6 @@
-import Link from 'next/link'
-import styled from 'styled-components'
-import { Project } from "@prisma/client"
+import Link from "next/link";
+import styled from "@emotion/styled";
+import { Project } from "@prisma/client";
 
 export type ProjectAndSubmissionCount = Project & {
   _count: {
@@ -31,18 +31,33 @@ const ProjectsTable = ({ projects }: PropTypes) => {
         </tr>
       </thead>
       <tbody>
-        {projects.map(project => (
+        {projects.map((project) => (
           <tr key={project.id}>
             <td>
               <Link href={`/projects/${project.id}`} passHref>
                 <Anchor>{project.name}</Anchor>
               </Link>
             </td>
+            <td>
+              <span>{project._count!.submissions}</span>
+            </td>
+            <td></td>
+            <td>
+              {project.folderWebLink && (
+                <Link href={project.folderWebLink} passHref>
+                  <Anchor>Google Drive</Anchor>
+                </Link>
+              )}
+              <br></br>
+              <Link href={`/p/${project.magicCode}`} passHref>
+                <Anchor>Submit...</Anchor>
+              </Link>
+            </td>
           </tr>
         ))}
       </tbody>
     </table>
-  )
+  );
 };
 
 export default ProjectsTable;

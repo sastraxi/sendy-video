@@ -1,6 +1,6 @@
 import Head from "next/head";
 import { useRouter } from 'next/router';
-import styled from "styled-components";
+import styled from "@emotion/styled";
 import { useForm } from "react-hook-form";
 import ReactMarkdown from "react-markdown";
 import axios from "axios";
