@@ -7,7 +7,7 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
   previewFeatures = ["selectRelationCount"]
 }
 
@@ -40,14 +40,14 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String       @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?      @unique
   emailVerified DateTime?
   image         String?
-  driveFileId   String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  rootFileId    String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
   accounts      Account[]
   sessions      Session[]
   projects      Project[]
@@ -66,26 +66,38 @@ model VerificationRequest {
 }
 
 model Project {
-  id          Int          @id @default(autoincrement())
-  userEmail   String
-  name        String
-  markdown    String?
-  magicCode   String       @unique
-  driveFileId String?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  user        User         @relation(fields: [userEmail], references: [email])
-  submissions Submission[]
+  id                 Int             @id @default(autoincrement())
+  userEmail          String
+  name               String
+  markdown           String?
+
+  isOpen             Boolean
+  magicCode          String          @unique
+  folderFileId       String?
+
+  ssoEnforced        Boolean         @default(false)
+  ssoMaxSubmissions  Int?
+  ssoSharedVideos    Boolean         @default(true)
+  ssoDomain          String?
+
+  maxSubmissions     Int?
+  maxBytes           Int?
+  closesAt           DateTime?
+
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  user               User            @relation(fields: [userEmail], references: [email])
+  submissions        Submission[]
 }
 
 model Submission {
-  id          Int      @id @default(autoincrement()) 
-  projectId   Int
-  fileSize    Int
-  userEmail   String?
-  email       String?
-  name        String
-  driveFileId String
-  project     Project  @relation(fields: [projectId], references: [id])
-  user        User?    @relation(fields: [userEmail], references: [email])
+  id        Int     @id @default(autoincrement())
+  projectId Int
+  fileSize  Int
+  userEmail String?
+  email     String?
+  name      String
+  fileId    String
+  project   Project @relation(fields: [projectId], references: [id])
+  user      User?   @relation(fields: [userEmail], references: [email])
 }

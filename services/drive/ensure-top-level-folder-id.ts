@@ -10,7 +10,7 @@ const TOP_LEVEL_FOLDER_NAME = 'Sendy Projects';
  * exist.
  */
 const ensureTopLevelFolderId = (user: User, drive: drive_v3.Drive) => async () => {
-  if (!user.driveFileId) {
+  if (!user.rootFileId) {
     const response = await drive.files.create({
       requestBody: {
           name: TOP_LEVEL_FOLDER_NAME,
@@ -19,19 +19,19 @@ const ensureTopLevelFolderId = (user: User, drive: drive_v3.Drive) => async () =
       fields: 'id',
     });
     console.log('created top-level folder', response);
-    const driveFileId = response.data.id!;
+    const rootFileId = response.data.id!;
     await prisma.user.update({
       where: {
         id: user.id,
       },
       data: {
-        driveFileId,
+        rootFileId,
       },
     });
     // N.B.: update the POJO so other methods on this request can access this id
-    user.driveFileId = driveFileId;
+    user.rootFileId = rootFileId;
   }
-  return user.driveFileId;
+  return user.rootFileId;
 };
 
 export default ensureTopLevelFolderId;

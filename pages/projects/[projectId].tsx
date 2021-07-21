@@ -6,10 +6,12 @@ import { Project } from "@prisma/client";
 import Link from 'next/link'
 
 // import { useForm } from "react-hook-form";
+// https://react-hook-form.com/get-started#TypeScript
+
 
 type ProjectAndSubmissionCount = Project & {
   _count: {
-      submissions: number;
+    submissions: number;
   } | null;
 };
 

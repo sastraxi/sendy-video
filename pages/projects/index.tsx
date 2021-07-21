@@ -2,12 +2,10 @@ import Head from "next/head";
 import { getSession } from "next-auth/client";
 import { GetServerSideProps } from "next";
 import prisma from "../../utils/db";
-import { Project } from "@prisma/client";
-import ProjectsTable from '../../components/ProjectsTable'
+import ProjectsTable, { PropTypes as ProjectPropTypes } from '../../components/ProjectsTable'
 import Link from 'next/link'
 
-type PropTypes = {
-  projects: Project[];
+type PropTypes = ProjectPropTypes & {
 };
 
 export default function ProjectsList({ projects }: PropTypes) {
@@ -48,8 +46,12 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
     where: {
       userEmail: email!,
     },
+    include: {
+      _count: {
+        select: { submissions: true },
+      },
+    },
   });
-  return {
-    props: { projects },
-  };
+  const props: PropTypes = { projects };
+  return { props };
 };

@@ -2,8 +2,14 @@ import Link from 'next/link'
 import styled from 'styled-components'
 import { Project } from "@prisma/client"
 
+export type ProjectAndSubmissionCount = Project & {
+  _count: {
+    submissions: number;
+  } | null;
+};
+
 export type PropTypes = {
-  projects: Project[];
+  projects: ProjectAndSubmissionCount[];
 };
 
 const Anchor = styled.a`

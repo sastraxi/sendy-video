@@ -1,6 +1,10 @@
 {
   "presets": ["next/babel"],
   "plugins": [
-    ["superjson-next", { "exclude": [] }]
+    ["superjson-next", { "exclude": [] }],
+    [
+      "babel-plugin-styled-components",
+      { "ssr": true, "displayName": true, "preprocess": false }
+    ]
   ]
 }

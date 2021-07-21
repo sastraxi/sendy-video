@@ -12,7 +12,7 @@ const createFolder = (user: User, drive: drive_v3.Drive) =>
       requestBody: {
           name: folderName,
           mimeType: 'application/vnd.google-apps.folder',
-          parents: [user.driveFileId!],
+          parents: [user.rootFileId!], // TODO: call ensuretoplevelfolderid
       },
       fields: 'id',
     });
