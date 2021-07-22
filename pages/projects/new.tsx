@@ -5,6 +5,8 @@ import { useForm } from "react-hook-form";
 import ReactMarkdown from "react-markdown";
 import axios from "axios";
 
+import ChakraUIRenderer from 'chakra-ui-markdown-renderer';
+
 import { ProjectFormData } from '../../models';
 
 const Row = styled.div`
@@ -91,7 +93,7 @@ export default function NewProject(_props: any) {
             </Cell>
             <MarkdownCell>
               {watched.markdown && (
-                <ReactMarkdown>{watched.markdown}</ReactMarkdown>
+                <ReactMarkdown components={ChakraUIRenderer()}>{watched.markdown}</ReactMarkdown>
               )}
             </MarkdownCell>
           </Row>
