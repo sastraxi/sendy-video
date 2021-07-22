@@ -140,12 +140,22 @@ const VideoBanner = (props: PropTypes) => {
         video: userMedia.videoDevice
           ? {
               deviceId: userMedia.videoDevice.id,
+              width: userMedia.width,
+              height: userMedia.height,
+              frameRate: userMedia.framerate,
             }
           : false,
       })
-      .then((stream) => {
-        setStream(stream);
-      });
+      .then(
+        (stream) => {
+          console.log("stream", stream);
+          setStream(stream);
+        },
+        (err) => {
+          console.error("no stream :(", err);
+          debugger;
+        }
+      );
   };
 
   return (
@@ -160,10 +170,11 @@ const VideoBanner = (props: PropTypes) => {
         startRecording={startRecording}
         startUpload={() => {}}
         state={state}
+        videoStream={stream || undefined}
       />
       <Container marginTop={4}>
         <Accordion allowToggle color="white">
-          <AccordionItem isDisabled={!userMedia}>
+          <AccordionItem isDisabled={!!stream}>
             {({ isExpanded }) => (
               <>
                 <AccordionButton>
@@ -174,7 +185,7 @@ const VideoBanner = (props: PropTypes) => {
                       </Text>
                     </Box>
                     <Spacer />
-                    {!isExpanded && userMedia && (
+                    {(!isExpanded || !!stream) && userMedia && (
                       <Box>
                         <Tag size="sm" marginRight={2} verticalAlign="1px">
                           <TagLabel>
@@ -199,61 +210,73 @@ const VideoBanner = (props: PropTypes) => {
                   <AccordionIcon />
                 </AccordionButton>
 
-                <AccordionPanel pb={4}>
-                  <FormControl id="videoDevice" m={4} mt={0}>
-                    <FormLabel>Video Device</FormLabel>
-                    <Select
-                      value={userMedia?.videoDevice?.id}
-                      onChange={(c) =>
-                        setVideoDevice({
-                          id: c.target.value,
-                          label: c.target.innerText,
-                        })
-                      }
-                    >
-                      {devices
-                        .filter((d) => d.kind === "videoinput")
-                        .map((device) => (
-                          <option key={device.deviceId} value={device.deviceId}>
-                            {device.label}
+                {!stream && (
+                  <AccordionPanel pb={4}>
+                    <FormControl id="videoDevice" m={4} mt={0}>
+                      <FormLabel>Video Device</FormLabel>
+                      <Select
+                        value={userMedia?.videoDevice?.id}
+                        onChange={(c) =>
+                          setVideoDevice({
+                            id: c.target.value,
+                            label:
+                              c.target.options[c.target.selectedIndex]
+                                .innerText,
+                          })
+                        }
+                      >
+                        {devices
+                          .filter((d) => d.kind === "videoinput")
+                          .map((device) => (
+                            <option
+                              key={device.deviceId}
+                              value={device.deviceId}
+                            >
+                              {device.label}
+                            </option>
+                          ))}
+                      </Select>
+                    </FormControl>
+                    <FormControl id="audioDevice" m={4}>
+                      <FormLabel>Audio Device</FormLabel>
+                      <Select
+                        value={userMedia?.audioDevice?.id}
+                        onChange={(c) =>
+                          setAudioDevice({
+                            id: c.target.value,
+                            label:
+                              c.target.options[c.target.selectedIndex]
+                                .innerText,
+                          })
+                        }
+                      >
+                        {devices
+                          .filter((d) => d.kind === "audioinput")
+                          .map((device) => (
+                            <option
+                              key={device.deviceId}
+                              value={device.deviceId}
+                            >
+                              {device.label}
+                            </option>
+                          ))}
+                      </Select>
+                    </FormControl>
+                    <FormControl id="quality" m={4}>
+                      <FormLabel>Quality Setting</FormLabel>
+                      <Select
+                        value={qualityKey()}
+                        onChange={(c) => setQuality(+c.target.value)}
+                      >
+                        {QUALITY.map(({ label }, index) => (
+                          <option key={index} value={`${index}`}>
+                            {label}
                           </option>
                         ))}
-                    </Select>
-                  </FormControl>
-                  <FormControl id="audioDevice" m={4}>
-                    <FormLabel>Audio Device</FormLabel>
-                    <Select
-                      value={userMedia?.audioDevice?.id}
-                      onChange={(c) =>
-                        setAudioDevice({
-                          id: c.target.value,
-                          label: c.target.innerText,
-                        })
-                      }
-                    >
-                      {devices
-                        .filter((d) => d.kind === "audioinput")
-                        .map((device) => (
-                          <option key={device.deviceId} value={device.deviceId}>
-                            {device.label}
-                          </option>
-                        ))}
-                    </Select>
-                  </FormControl>
-                  <FormControl id="quality" m={4}>
-                    <FormLabel>Quality Setting</FormLabel>
-                    <Select
-                      value={qualityKey()}
-                      onChange={(c) => setQuality(+c.target.value)}
-                    >
-                      {QUALITY.map(({ label }, index) => (
-                        <option key={index} value={`${index}`}>
-                          {label}
-                        </option>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </AccordionPanel>
+                      </Select>
+                    </FormControl>
+                  </AccordionPanel>
+                )}
               </>
             )}
           </AccordionItem>

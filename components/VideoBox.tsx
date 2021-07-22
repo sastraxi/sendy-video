@@ -1,11 +1,8 @@
-import {
-  Box, Center, IconButton
-} from "@chakra-ui/react";
+import { Box, Center, IconButton } from "@chakra-ui/react";
 import { FaCircle, FaSquare } from "react-icons/fa";
 import { GiPauseButton, GiPlayButton } from "react-icons/gi";
 import { GoCloudUpload } from "react-icons/go";
 import Video from "./Video";
-
 
 export enum RecorderState {
   INITIAL,
@@ -55,8 +52,21 @@ const VideoRecorder = ({
       break;
     case RecorderState.RECORDING:
       overlay = (
-        <Center position="absolute" bottom={0} left={0} right={0} m={8}>
-          <IconButton size="lg" icon={<FaSquare />} aria-label="Stop" isRound />
+        <Center
+          position="absolute"
+          bottom={0}
+          left={0}
+          right={0}
+          p={8}
+          bgGradient="linear(to-t, blackAlpha.700, transparent)"
+        >
+          <IconButton
+            boxShadow="0px 2px 8px rgba(0, 0, 0, 0.35)"
+            size="lg"
+            icon={<FaSquare />}
+            aria-label="Stop"
+            isRound
+          />
         </Center>
       );
       break;
@@ -92,9 +102,11 @@ const VideoRecorder = ({
 
   return (
     <Box w="800px" h="454px" bg="black" borderRadius={8} position="relative">
+      <Center height="100%">
+        {videoStream && <Video srcObject={videoStream} autoPlay width="99%" />}
+      </Center>
       {overlay}
       {videoUrl && <Video src={videoUrl} />}
-      {videoStream && <Video srcObject={videoStream} />}
     </Box>
   );
 };
