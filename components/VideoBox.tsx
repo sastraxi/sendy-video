@@ -41,6 +41,7 @@ const VideoRecorder = ({
             color="red"
             icon={<FaCircle />}
             aria-label="Start recording"
+            onClick={startRecording}
             isRound
           />
           <IconButton

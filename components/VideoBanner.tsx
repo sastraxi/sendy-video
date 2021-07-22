@@ -1,30 +1,153 @@
 import {
+  Accordion,
+  AccordionButton,
+  AccordionIcon,
+  AccordionItem,
+  AccordionPanel,
   Box,
   Code,
+  Container,
   Flex,
+  FormControl,
+  FormHelperText,
+  FormLabel,
+  Heading,
+  Select,
   Spacer,
-  Text,
   Tag,
   TagLabel,
   TagLeftIcon,
-  Container,
-  Accordion,
-  AccordionItem,
-  AccordionButton,
-  AccordionPanel,
-  AccordionIcon,
-  Heading,
+  Text,
 } from "@chakra-ui/react";
-import { useEffect } from "react";
-
+import { useEffect, useState } from "react";
 import { FaMicrophone, FaVideo } from "react-icons/fa";
 import VideoBox, { RecorderState } from "./VideoBox";
+import { Device, UserMedia } from "./VideoSettings";
 
 type PropTypes = {
   maxLength?: number;
 };
 
+const QUALITY = [
+  {
+    label: "Low - 480p, 30fps",
+    width: 854,
+    height: 480,
+    framerate: 30,
+  },
+  {
+    label: "Medium - 720p, 30fps",
+    width: 1280,
+    height: 720,
+    framerate: 30,
+  },
+  {
+    label: "High - 720p, 60fps",
+    width: 1280,
+    height: 720,
+    framerate: 60,
+  },
+  {
+    label: "Ultra - 1080p, 60fps",
+    width: 1920,
+    height: 1080,
+    framerate: 60,
+  },
+];
+
+const DEFAULT_WIDTH = 1280;
+const DEFAULT_HEIGHT = 720;
+const DEFAULT_FRAMERATE = 30;
+
 const VideoBanner = (props: PropTypes) => {
+  const [state, setState] = useState(RecorderState.INITIAL);
+  const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
+  const [userMedia, setUserMedia] = useState<UserMedia | null>(null);
+  const [stream, setStream] = useState<MediaStream | null>(null);
+
+  const setVideoDevice = (videoDevice: Device) =>
+    setUserMedia({
+      ...userMedia!,
+      videoDevice,
+    });
+
+  const setAudioDevice = (audioDevice: Device) =>
+    setUserMedia({
+      ...userMedia!,
+      audioDevice,
+    });
+
+  const setQuality = (qualityIndex: number) => {
+    setUserMedia({
+      ...userMedia!,
+      width: QUALITY[qualityIndex].width,
+      height: QUALITY[qualityIndex].height,
+      framerate: QUALITY[qualityIndex].framerate,
+    });
+  };
+
+  // FIXME: be civilized and use lodash or something
+  const qualityKey = () => {
+    if (!userMedia) return 1; // default
+    if (userMedia.height === 480) return 0;
+    if (userMedia.height === 720 && userMedia.framerate === 30) return 1;
+    if (userMedia.height === 720 && userMedia.framerate === 60) return 2;
+    if (userMedia.height === 1080) return 3;
+    return 1;
+  };
+
+  useEffect(() => {
+    navigator.mediaDevices.enumerateDevices().then((devices) => {
+      setDevices(devices);
+      const videoDevice = devices.find((d) => d.kind === "videoinput");
+      const audioDevice = devices.find((d) => d.kind === "audioinput");
+      // TODO: localstorage defaults
+      setUserMedia({
+        videoDevice: videoDevice
+          ? {
+              id: videoDevice.deviceId,
+              label: videoDevice.label,
+            }
+          : undefined,
+        audioDevice: audioDevice
+          ? {
+              id: audioDevice.deviceId,
+              label: audioDevice.label,
+            }
+          : undefined,
+        width: DEFAULT_WIDTH,
+        height: DEFAULT_HEIGHT,
+        framerate: DEFAULT_FRAMERATE,
+      });
+    });
+  }, []);
+
+  const startRecording = () => {
+    if (!userMedia) {
+      alert("!userMedia");
+      return;
+    }
+
+    setState(RecorderState.RECORDING);
+
+    navigator.mediaDevices
+      .getUserMedia({
+        audio: userMedia.audioDevice
+          ? {
+              deviceId: userMedia.audioDevice.id,
+            }
+          : false,
+        video: userMedia.videoDevice
+          ? {
+              deviceId: userMedia.videoDevice.id,
+            }
+          : false,
+      })
+      .then((stream) => {
+        setStream(stream);
+      });
+  };
+
   return (
     <Container
       centerContent
@@ -34,13 +157,13 @@ const VideoBanner = (props: PropTypes) => {
     >
       <VideoBox
         maxLength={props.maxLength}
-        startRecording={() => {}}
+        startRecording={startRecording}
         startUpload={() => {}}
-        state={RecorderState.INITIAL}
+        state={state}
       />
       <Container marginTop={4}>
         <Accordion allowToggle color="white">
-          <AccordionItem>
+          <AccordionItem isDisabled={!userMedia}>
             {({ isExpanded }) => (
               <>
                 <AccordionButton>
@@ -51,18 +174,24 @@ const VideoBanner = (props: PropTypes) => {
                       </Text>
                     </Box>
                     <Spacer />
-                    {!isExpanded && (
+                    {!isExpanded && userMedia && (
                       <Box>
                         <Tag size="sm" marginRight={2} verticalAlign="1px">
-                          <TagLabel>720p60</TagLabel>
+                          <TagLabel>
+                            {userMedia.height}p{userMedia.framerate}
+                          </TagLabel>
                         </Tag>
                         <Tag size="sm" marginRight={2} verticalAlign="-1px">
                           <TagLeftIcon boxSize="12px" as={FaVideo} />
-                          <TagLabel>Built-in webcam</TagLabel>
+                          <TagLabel>
+                            {userMedia.videoDevice?.label || "N/A"}
+                          </TagLabel>
                         </Tag>
                         <Tag size="sm" marginRight={2} verticalAlign="-1px">
                           <TagLeftIcon boxSize="12px" as={FaMicrophone} />
-                          <TagLabel>Built-in microphone</TagLabel>
+                          <TagLabel>
+                            {userMedia.audioDevice?.label || "N/A"}
+                          </TagLabel>
                         </Tag>
                       </Box>
                     )}
@@ -71,10 +200,59 @@ const VideoBanner = (props: PropTypes) => {
                 </AccordionButton>
 
                 <AccordionPanel pb={4}>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed
-                  do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-                  Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                  laboris nisi ut aliquip ex ea commodo consequat.
+                  <FormControl id="videoDevice" m={4} mt={0}>
+                    <FormLabel>Video Device</FormLabel>
+                    <Select
+                      value={userMedia?.videoDevice?.id}
+                      onChange={(c) =>
+                        setVideoDevice({
+                          id: c.target.value,
+                          label: c.target.innerText,
+                        })
+                      }
+                    >
+                      {devices
+                        .filter((d) => d.kind === "videoinput")
+                        .map((device) => (
+                          <option key={device.deviceId} value={device.deviceId}>
+                            {device.label}
+                          </option>
+                        ))}
+                    </Select>
+                  </FormControl>
+                  <FormControl id="audioDevice" m={4}>
+                    <FormLabel>Audio Device</FormLabel>
+                    <Select
+                      value={userMedia?.audioDevice?.id}
+                      onChange={(c) =>
+                        setAudioDevice({
+                          id: c.target.value,
+                          label: c.target.innerText,
+                        })
+                      }
+                    >
+                      {devices
+                        .filter((d) => d.kind === "audioinput")
+                        .map((device) => (
+                          <option key={device.deviceId} value={device.deviceId}>
+                            {device.label}
+                          </option>
+                        ))}
+                    </Select>
+                  </FormControl>
+                  <FormControl id="quality" m={4}>
+                    <FormLabel>Quality Setting</FormLabel>
+                    <Select
+                      value={qualityKey()}
+                      onChange={(c) => setQuality(+c.target.value)}
+                    >
+                      {QUALITY.map(({ label }, index) => (
+                        <option key={index} value={`${index}`}>
+                          {label}
+                        </option>
+                      ))}
+                    </Select>
+                  </FormControl>
                 </AccordionPanel>
               </>
             )}
@@ -125,8 +303,8 @@ const VideoBanner = (props: PropTypes) => {
               <Text marginTop={3}>
                 When you have perfected your video, it&apos;s time for
                 submission. Scroll to the bottom of the page and fill in the
-                metadata fields that the project owner has requested, then
-                click <Code>Submit my video</Code>.
+                metadata fields that the project owner has requested, then click{" "}
+                <Code>Submit my video</Code>.
               </Text>
             </AccordionPanel>
           </AccordionItem>

@@ -1,7 +1,11 @@
+export type Device = {
+  id: string,
+  label: string,
+};
 
 export type UserMedia = {
-  videoDevice: string,
-  audioDevice: string,
+  videoDevice?: Device,
+  audioDevice?: Device,
   width: number,
   height: number,
   framerate: number,
