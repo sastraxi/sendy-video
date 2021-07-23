@@ -15,14 +15,14 @@ export enum RecorderState {
 }
 
 type PropTypes = {
-  maxLength?: number,
-  state: RecorderState,
-  videoStream?: MediaStream,
-  videoUrl?: string,
-  requestPermission: () => any,
-  startRecording: () => any,
-  stopRecording: () => any,
-  startUpload: () => any,
+  maxLength?: number;
+  state: RecorderState;
+  videoStream?: MediaStream;
+  videoUrl?: string;
+  requestPermission: () => any;
+  startRecording: () => any;
+  stopRecording: () => any;
+  startUpload: () => any;
 };
 
 const VideoRecorder = ({
@@ -46,7 +46,8 @@ const VideoRecorder = ({
             aria-label="Request permission to camera and microphone"
             onClick={requestPermission}
             isRound
-          />          <IconButton
+          />{" "}
+          <IconButton
             size="lg"
             icon={<GoCloudUpload />}
             aria-label="Upload a recording"
@@ -130,10 +131,14 @@ const VideoRecorder = ({
   return (
     <Box w="800px" h="454px" bg="black" borderRadius={8} position="relative">
       <Center height="100%">
-        {videoStream && <Video srcObject={videoStream} autoPlay width="98%" />}
+        {(state === RecorderState.MONITORING ||
+          state === RecorderState.RECORDING) &&
+          videoStream && <Video srcObject={videoStream} autoPlay width="98%" />}
+        
+        {(state === RecorderState.STOPPED ||
+          state === RecorderState.PLAYBACK) && videoUrl && <Video src={videoUrl} />}
       </Center>
       {overlay}
-      {videoUrl && <Video src={videoUrl} />}
     </Box>
   );
 };
