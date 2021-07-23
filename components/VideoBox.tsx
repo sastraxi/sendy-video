@@ -2,22 +2,26 @@ import { Box, Center, IconButton } from "@chakra-ui/react";
 import { FaCircle, FaSquare } from "react-icons/fa";
 import { GiPauseButton, GiPlayButton } from "react-icons/gi";
 import { GoCloudUpload } from "react-icons/go";
+import { IoMdPower } from "react-icons/io";
 import Video from "./Video";
+import { UserMedia } from "./VideoSettings";
 
 export enum RecorderState {
-  INITIAL,
+  INITAL,
+  MONITORING,
   RECORDING,
   STOPPED,
   PLAYBACK,
 }
 
 type PropTypes = {
-  maxLength?: number;
-  state: RecorderState;
-  videoStream?: MediaStream;
-  videoUrl?: string;
-  startRecording: () => any;
-  startUpload: () => any;
+  maxLength?: number,
+  state: RecorderState,
+  videoStream?: MediaStream,
+  videoUrl?: string,
+  requestPermission: () => any,
+  startRecording: () => any,
+  startUpload: () => any,
 };
 
 const VideoRecorder = ({
@@ -25,11 +29,31 @@ const VideoRecorder = ({
   videoStream,
   videoUrl,
   maxLength,
+  requestPermission,
   startRecording,
 }: PropTypes) => {
   let overlay;
   switch (state) {
-    case RecorderState.INITIAL:
+    case RecorderState.INITAL:
+      overlay = (
+        <Center position="absolute" bottom={0} left={0} right={0} m={8}>
+          <IconButton
+            marginRight={2}
+            size="lg"
+            icon={<IoMdPower />}
+            aria-label="Request permission to camera and microphone"
+            onClick={requestPermission}
+            isRound
+          />          <IconButton
+            size="lg"
+            icon={<GoCloudUpload />}
+            aria-label="Upload a recording"
+            isRound
+          />
+        </Center>
+      );
+      break;
+    case RecorderState.MONITORING:
       overlay = (
         <Center position="absolute" bottom={0} left={0} right={0} m={8}>
           <IconButton

@@ -28,6 +28,12 @@ type PropTypes = {
   maxLength?: number;
 };
 
+type RecordedFile = {
+  length: number;
+  blob: Blob;
+  url: string;
+};
+
 const QUALITY = [
   {
     label: "Low - 480p, 30fps",
@@ -60,22 +66,28 @@ const DEFAULT_HEIGHT = 720;
 const DEFAULT_FRAMERATE = 30;
 
 const VideoBanner = (props: PropTypes) => {
-  const [state, setState] = useState(RecorderState.INITIAL);
+  const [state, setState] = useState(RecorderState.INITAL);
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
   const [userMedia, setUserMedia] = useState<UserMedia | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
+  const [shouldStop, setShouldStop] = useState<boolean>(false);
+  const [recording, setRecording] = useState<RecordedFile | null>(null);
 
-  const setVideoDevice = (videoDevice: Device) =>
+  const setVideoDevice = (videoDevice: Device) => {
     setUserMedia({
       ...userMedia!,
       videoDevice,
     });
+    window.localStorage.setItem("defaultVideoDeviceId", videoDevice.id);
+  };
 
-  const setAudioDevice = (audioDevice: Device) =>
+  const setAudioDevice = (audioDevice: Device) => {
     setUserMedia({
       ...userMedia!,
       audioDevice,
     });
+    window.localStorage.setItem("defaultAudioDeviceId", audioDevice.id);
+  };
 
   const setQuality = (qualityIndex: number) => {
     setUserMedia({
@@ -99,8 +111,21 @@ const VideoBanner = (props: PropTypes) => {
   useEffect(() => {
     navigator.mediaDevices.enumerateDevices().then((devices) => {
       setDevices(devices);
-      const videoDevice = devices.find((d) => d.kind === "videoinput");
-      const audioDevice = devices.find((d) => d.kind === "audioinput");
+      const videoDeviceId = window.localStorage.getItem("defaultVideoDeviceId");
+      const audioDeviceId = window.localStorage.getItem("defaultAudioDeviceId");
+
+      const videoDevice = devices.find(
+        videoDeviceId
+          ? (d) => d.deviceId === videoDeviceId
+          : (d) => d.kind === "videoinput"
+      );
+
+      const audioDevice = devices.find(
+        audioDeviceId
+          ? (d) => d.deviceId === audioDeviceId
+          : (d) => d.kind === "audioinput"
+      );
+
       // TODO: localstorage defaults
       setUserMedia({
         videoDevice: videoDevice
@@ -119,16 +144,23 @@ const VideoBanner = (props: PropTypes) => {
         height: DEFAULT_HEIGHT,
         framerate: DEFAULT_FRAMERATE,
       });
+
+      // once we've loaded the devices, we can see if we can instantly move onto monitoring
+      navigator.permissions.query({ name: "camera" }).then((status) => {
+        const permitted = status.state === "granted";
+        if (permitted) {
+          // go straight to monitoring
+          setState(RecorderState.MONITORING);
+        }
+      });
     });
   }, []);
 
-  const startRecording = () => {
+  const startMonitoring = () => {
     if (!userMedia) {
       alert("!userMedia");
       return;
     }
-
-    setState(RecorderState.RECORDING);
 
     navigator.mediaDevices
       .getUserMedia({
@@ -158,6 +190,56 @@ const VideoBanner = (props: PropTypes) => {
       );
   };
 
+  const startRecording = () => {
+    if (!userMedia || !stream) {
+      alert("!userMedia || !stream");
+      return;
+    }
+
+    const mediaRecorder = new MediaRecorder(stream, {
+      audioBitsPerSecond: 128 * 1000,
+      videoBitsPerSecond: 1.75 * 1000 * 1000,
+      mimeType: "video/mp4",
+    });
+
+    const startedAt = new Date().getTime();
+    const recordedChunks: BlobPart[] = [];
+    mediaRecorder.addEventListener("dataavailable", function (e) {
+      if (e.data.size > 0) {
+        recordedChunks.push(e.data);
+      }
+
+      if (shouldStop && state === RecorderState.RECORDING) {
+        mediaRecorder.stop();
+        setState(RecorderState.STOPPED);
+      }
+    });
+
+    mediaRecorder.addEventListener("stop", function () {
+      const blob = new Blob(recordedChunks);
+      setRecording({
+        length: 0.001 * (new Date().getTime() - startedAt),
+        url: URL.createObjectURL(blob),
+        blob,
+      });
+    });
+
+    mediaRecorder.start();
+  };
+
+  useEffect(() => {
+    switch (state) {
+      case RecorderState.MONITORING:
+        return startMonitoring();
+      case RecorderState.RECORDING:
+        return startRecording();
+      case RecorderState.STOPPED:
+        break;
+      case RecorderState.PLAYBACK:
+        break;
+    }
+  }, [state]);
+
   return (
     <Container
       centerContent
@@ -171,10 +253,11 @@ const VideoBanner = (props: PropTypes) => {
         startUpload={() => {}}
         state={state}
         videoStream={stream || undefined}
+        requestPermission={startMonitoring}
       />
       <Container marginTop={4}>
         <Accordion allowToggle color="white">
-          <AccordionItem isDisabled={!!stream}>
+          <AccordionItem isDisabled={state === RecorderState.RECORDING}>
             {({ isExpanded }) => (
               <>
                 <AccordionButton>
@@ -185,7 +268,7 @@ const VideoBanner = (props: PropTypes) => {
                       </Text>
                     </Box>
                     <Spacer />
-                    {(!isExpanded || !!stream) && userMedia && (
+                    {(!isExpanded || state === RecorderState.RECORDING) && userMedia && (
                       <Box>
                         <Tag size="sm" marginRight={2} verticalAlign="1px">
                           <TagLabel>
@@ -210,7 +293,7 @@ const VideoBanner = (props: PropTypes) => {
                   <AccordionIcon />
                 </AccordionButton>
 
-                {!stream && (
+                {state !== RecorderState.RECORDING && (
                   <AccordionPanel pb={4}>
                     <FormControl id="videoDevice" m={4} mt={0}>
                       <FormLabel>Video Device</FormLabel>
