@@ -70,23 +70,35 @@ const VideoBanner = (props: PropTypes) => {
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
   const [userMedia, setUserMedia] = useState<UserMedia | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
-  const [shouldStop, setShouldStop] = useState<boolean>(false);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [recording, setRecording] = useState<RecordedFile | null>(null);
 
+  const changeMedia = (newUserMedia: UserMedia) => {
+    setUserMedia(newUserMedia);
+    if (stream) {
+      setStream(null);
+      startMonitoring(newUserMedia);
+    }
+  }
+
   const setVideoDevice = (videoDevice: Device) => {
-    setUserMedia({
+    const changed = userMedia!.videoDevice?.id !== videoDevice.id;
+    if (!changed) return;
+    window.localStorage.setItem("defaultVideoDeviceId", videoDevice.id);
+    changeMedia({
       ...userMedia!,
       videoDevice,
     });
-    window.localStorage.setItem("defaultVideoDeviceId", videoDevice.id);
   };
 
   const setAudioDevice = (audioDevice: Device) => {
-    setUserMedia({
+    const changed = userMedia!.audioDevice?.id !== audioDevice.id;
+    if (!changed) return;
+    window.localStorage.setItem("defaultAudioDeviceId", audioDevice.id);
+    changeMedia({
       ...userMedia!,
       audioDevice,
     });
-    window.localStorage.setItem("defaultAudioDeviceId", audioDevice.id);
   };
 
   const setQuality = (qualityIndex: number) => {
@@ -156,25 +168,25 @@ const VideoBanner = (props: PropTypes) => {
     });
   }, []);
 
-  const startMonitoring = () => {
-    if (!userMedia) {
-      alert("!userMedia");
+  const startMonitoring = (monitorMedia: UserMedia) => {
+    if (!monitorMedia) {
+      alert("!monitorMedia");
       return;
     }
 
     navigator.mediaDevices
       .getUserMedia({
-        audio: userMedia.audioDevice
+        audio: monitorMedia.audioDevice
           ? {
-              deviceId: userMedia.audioDevice.id,
+              deviceId: monitorMedia.audioDevice.id,
             }
           : false,
-        video: userMedia.videoDevice
+        video: monitorMedia.videoDevice
           ? {
-              deviceId: userMedia.videoDevice.id,
-              width: userMedia.width,
-              height: userMedia.height,
-              frameRate: userMedia.framerate,
+              deviceId: monitorMedia.videoDevice.id,
+              width: monitorMedia.width,
+              height: monitorMedia.height,
+              frameRate: monitorMedia.framerate,
             }
           : false,
       })
@@ -199,19 +211,14 @@ const VideoBanner = (props: PropTypes) => {
     const mediaRecorder = new MediaRecorder(stream, {
       audioBitsPerSecond: 128 * 1000,
       videoBitsPerSecond: 1.75 * 1000 * 1000,
-      mimeType: "video/mp4",
     });
+    setMediaRecorder(mediaRecorder);
 
     const startedAt = new Date().getTime();
     const recordedChunks: BlobPart[] = [];
     mediaRecorder.addEventListener("dataavailable", function (e) {
       if (e.data.size > 0) {
         recordedChunks.push(e.data);
-      }
-
-      if (shouldStop && state === RecorderState.RECORDING) {
-        mediaRecorder.stop();
-        setState(RecorderState.STOPPED);
       }
     });
 
@@ -227,13 +234,18 @@ const VideoBanner = (props: PropTypes) => {
     mediaRecorder.start();
   };
 
+  // leading edge
   useEffect(() => {
     switch (state) {
       case RecorderState.MONITORING:
-        return startMonitoring();
+        return startMonitoring(userMedia!);
       case RecorderState.RECORDING:
         return startRecording();
       case RecorderState.STOPPED:
+        if (mediaRecorder) {
+          mediaRecorder.stop();
+          setMediaRecorder(null);
+        }
         break;
       case RecorderState.PLAYBACK:
         break;
@@ -249,11 +261,13 @@ const VideoBanner = (props: PropTypes) => {
     >
       <VideoBox
         maxLength={props.maxLength}
-        startRecording={startRecording}
+        startRecording={() => setState(RecorderState.RECORDING)}
+        stopRecording={() => setState(RecorderState.STOPPED)}
         startUpload={() => {}}
         state={state}
         videoStream={stream || undefined}
-        requestPermission={startMonitoring}
+        videoUrl={recording?.url}
+        requestPermission={() => setState(RecorderState.MONITORING)}
       />
       <Container marginTop={4}>
         <Accordion allowToggle color="white">

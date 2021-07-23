@@ -21,6 +21,7 @@ type PropTypes = {
   videoUrl?: string,
   requestPermission: () => any,
   startRecording: () => any,
+  stopRecording: () => any,
   startUpload: () => any,
 };
 
@@ -31,6 +32,7 @@ const VideoRecorder = ({
   maxLength,
   requestPermission,
   startRecording,
+  stopRecording,
 }: PropTypes) => {
   let overlay;
   switch (state) {
@@ -89,6 +91,7 @@ const VideoRecorder = ({
             size="lg"
             icon={<FaSquare />}
             aria-label="Stop"
+            onClick={stopRecording}
             isRound
           />
         </Center>
@@ -127,7 +130,7 @@ const VideoRecorder = ({
   return (
     <Box w="800px" h="454px" bg="black" borderRadius={8} position="relative">
       <Center height="100%">
-        {videoStream && <Video srcObject={videoStream} autoPlay width="99%" />}
+        {videoStream && <Video srcObject={videoStream} autoPlay width="98%" />}
       </Center>
       {overlay}
       {videoUrl && <Video src={videoUrl} />}
