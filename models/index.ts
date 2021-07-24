@@ -9,3 +9,9 @@ export type ProjectFormData = {
   limitSubmissions?: number;
   limitTotalSize?: number;
 };
+
+export type RecordedFile = {
+  length: number;
+  blob: Blob;
+  url: string;
+};

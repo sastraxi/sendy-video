@@ -21,17 +21,27 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { FaMicrophone, FaVideo } from "react-icons/fa";
+import { RecordedFile } from "../models";
 import VideoBox, { RecorderState } from "./VideoBox";
 import { Device, UserMedia } from "./VideoSettings";
 
+const backdropGradient = `
+  linear-gradient(
+    rgba(0, 0, 0, 0.898) 0%,
+    rgba(0, 0, 0, 0.880) 23%,
+    rgba(0, 0, 0, 0.870) 55%,
+    rgba(0, 0, 0, 0.860) 80%,
+    rgba(0, 0, 0, 0.850) 87%,
+    rgba(0, 0, 0, 0.840) 92%,
+    rgba(0, 0, 0, 0.813) 100%
+  );
+`;
+
 type PropTypes = {
   maxLength?: number;
-};
-
-type RecordedFile = {
-  length: number;
-  blob: Blob;
-  url: string;
+  focusSubmissionForm: () => any;
+  recording: RecordedFile | null;
+  setRecording: (x: RecordedFile | null) => any;
 };
 
 const QUALITY = [
@@ -70,16 +80,16 @@ const VideoBanner = (props: PropTypes) => {
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
   const [userMedia, setUserMedia] = useState<UserMedia | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
-  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
-  const [recording, setRecording] = useState<RecordedFile | null>(null);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(
+    null
+  );
 
   const changeMedia = (newUserMedia: UserMedia) => {
     setUserMedia(newUserMedia);
     if (stream) {
       setStream(null);
-      startMonitoring(newUserMedia);
     }
-  }
+  };
 
   const setVideoDevice = (videoDevice: Device) => {
     const changed = userMedia!.videoDevice?.id !== videoDevice.id;
@@ -102,7 +112,9 @@ const VideoBanner = (props: PropTypes) => {
   };
 
   const setQuality = (qualityIndex: number) => {
-    setUserMedia({
+    if (qualityKey() === qualityIndex) return;
+    console.log(qualityIndex);
+    changeMedia({
       ...userMedia!,
       width: QUALITY[qualityIndex].width,
       height: QUALITY[qualityIndex].height,
@@ -168,38 +180,44 @@ const VideoBanner = (props: PropTypes) => {
     });
   }, []);
 
-  const startMonitoring = (monitorMedia: UserMedia) => {
-    if (!monitorMedia) {
-      alert("!monitorMedia");
+  const startMonitoring = () => {
+    if (!userMedia) {
+      alert("!userMedia");
       return;
     }
 
-    navigator.mediaDevices
-      .getUserMedia({
-        audio: monitorMedia.audioDevice
-          ? {
-              deviceId: monitorMedia.audioDevice.id,
-            }
-          : false,
-        video: monitorMedia.videoDevice
-          ? {
-              deviceId: monitorMedia.videoDevice.id,
-              width: monitorMedia.width,
-              height: monitorMedia.height,
-              frameRate: monitorMedia.framerate,
-            }
-          : false,
-      })
-      .then(
-        (stream) => {
-          console.log("stream", stream);
-          setStream(stream);
-        },
-        (err) => {
-          console.error("no stream :(", err);
-          debugger;
-        }
-      );
+    if (props.recording) {
+      props.setRecording(null);
+    }
+
+    if (!stream) {
+      navigator.mediaDevices
+        .getUserMedia({
+          audio: userMedia.audioDevice
+            ? {
+                deviceId: userMedia.audioDevice.id,
+              }
+            : false,
+          video: userMedia.videoDevice
+            ? {
+                deviceId: userMedia.videoDevice.id,
+                width: userMedia.width,
+                height: userMedia.height,
+                frameRate: userMedia.framerate,
+              }
+            : false,
+        })
+        .then(
+          (stream) => {
+            console.log("stream", stream);
+            setStream(stream);
+          },
+          (err) => {
+            console.error("no stream :(", err);
+            debugger;
+          }
+        );
+    }
   };
 
   const startRecording = () => {
@@ -224,7 +242,7 @@ const VideoBanner = (props: PropTypes) => {
 
     mediaRecorder.addEventListener("stop", function () {
       const blob = new Blob(recordedChunks);
-      setRecording({
+      props.setRecording({
         length: 0.001 * (new Date().getTime() - startedAt),
         url: URL.createObjectURL(blob),
         blob,
@@ -238,40 +256,46 @@ const VideoBanner = (props: PropTypes) => {
   useEffect(() => {
     switch (state) {
       case RecorderState.MONITORING:
-        return startMonitoring(userMedia!);
+        return startMonitoring();
       case RecorderState.RECORDING:
         return startRecording();
-      case RecorderState.STOPPED:
+      case RecorderState.PLAYBACK:
         if (mediaRecorder) {
           mediaRecorder.stop();
           setMediaRecorder(null);
         }
         break;
-      case RecorderState.PLAYBACK:
-        break;
     }
   }, [state]);
+
+  useEffect(() => {
+    if (stream === null && state === RecorderState.MONITORING) {
+      return startMonitoring();
+    }
+  }, [stream]);
 
   return (
     <Container
       centerContent
       maxW="100%"
       p={6}
-      bgGradient="linear(to-b, blue.600, gray.700)"
+      bg={backdropGradient}
     >
       <VideoBox
         maxLength={props.maxLength}
         startRecording={() => setState(RecorderState.RECORDING)}
-        stopRecording={() => setState(RecorderState.STOPPED)}
+        stopRecording={() => setState(RecorderState.PLAYBACK)}
         startUpload={() => {}}
         state={state}
         videoStream={stream || undefined}
-        videoUrl={recording?.url}
+        videoUrl={props.recording?.url}
         requestPermission={() => setState(RecorderState.MONITORING)}
+        focusSubmissionForm={props.focusSubmissionForm}
+        discardRecording={() => setState(RecorderState.MONITORING)}
       />
       <Container marginTop={4}>
         <Accordion allowToggle color="white">
-          <AccordionItem isDisabled={state === RecorderState.RECORDING}>
+          <AccordionItem border={0} isDisabled={state === RecorderState.RECORDING}>
             {({ isExpanded }) => (
               <>
                 <AccordionButton>
@@ -282,27 +306,28 @@ const VideoBanner = (props: PropTypes) => {
                       </Text>
                     </Box>
                     <Spacer />
-                    {(!isExpanded || state === RecorderState.RECORDING) && userMedia && (
-                      <Box>
-                        <Tag size="sm" marginRight={2} verticalAlign="1px">
-                          <TagLabel>
-                            {userMedia.height}p{userMedia.framerate}
-                          </TagLabel>
-                        </Tag>
-                        <Tag size="sm" marginRight={2} verticalAlign="-1px">
-                          <TagLeftIcon boxSize="12px" as={FaVideo} />
-                          <TagLabel>
-                            {userMedia.videoDevice?.label || "N/A"}
-                          </TagLabel>
-                        </Tag>
-                        <Tag size="sm" marginRight={2} verticalAlign="-1px">
-                          <TagLeftIcon boxSize="12px" as={FaMicrophone} />
-                          <TagLabel>
-                            {userMedia.audioDevice?.label || "N/A"}
-                          </TagLabel>
-                        </Tag>
-                      </Box>
-                    )}
+                    {(!isExpanded || state === RecorderState.RECORDING) &&
+                      userMedia && (
+                        <Box>
+                          <Tag size="sm" marginRight={2} verticalAlign="1px">
+                            <TagLabel>
+                              {userMedia.height}p{userMedia.framerate}
+                            </TagLabel>
+                          </Tag>
+                          <Tag size="sm" marginRight={2} verticalAlign="-1px">
+                            <TagLeftIcon boxSize="12px" as={FaVideo} />
+                            <TagLabel>
+                              {userMedia.videoDevice?.label || "N/A"}
+                            </TagLabel>
+                          </Tag>
+                          <Tag size="sm" marginRight={2} verticalAlign="-1px">
+                            <TagLeftIcon boxSize="12px" as={FaMicrophone} />
+                            <TagLabel>
+                              {userMedia.audioDevice?.label || "N/A"}
+                            </TagLabel>
+                          </Tag>
+                        </Box>
+                      )}
                   </Flex>
                   <AccordionIcon />
                 </AccordionButton>
@@ -376,93 +401,6 @@ const VideoBanner = (props: PropTypes) => {
                 )}
               </>
             )}
-          </AccordionItem>
-
-          <AccordionItem>
-            <h2>
-              <AccordionButton>
-                <Box flex="1" textAlign="left">
-                  <Text color="white" fontWeight="bold">
-                    Need help?
-                  </Text>
-                </Box>
-                <AccordionIcon />
-              </AccordionButton>
-            </h2>
-            <AccordionPanel pb={4}>
-              <Text>
-                Let&apos;s record a message using your laptop or PC&apos;s
-                webcam! You can also upload previously-recorded video files, as
-                well as recording your screen (if your browser supports it).
-              </Text>
-              <Text marginTop={3}>
-                First, let&apos;s make sure your browser can connect to your
-                camera. Click <Code>Settings</Code> above, and cycle through{" "}
-                <em>video devices</em> until you can see yourself above the{" "}
-                <Code>Record</Code> and <Code>Upload</Code> buttons. Next, cycle
-                through the <em>audio devices</em> until you can see the meter
-                respond to your voice.
-              </Text>
-              <Text marginTop={3}>
-                Next, scroll down to see the instructions your project owner has
-                given. Often, the difference between an <em>okay</em> video and
-                a good one is in just a few minutes of prep: about 5 for each
-                minute you want your submission to be in length. Put down on
-                paper a few points to get to in each minute, and keep yourself
-                on schedule. Try to reduce your
-              </Text>
-              <Text marginTop={3}>
-                Once you click the <Code>Record</Code> button, the user
-                interface will change to show a <Code>Stop</Code> button.
-                You&apos;ll see a timer you can use to keep your pace,
-                and&mdash;if the project owner has set a time limit&mdash;you
-                will see a countdown timer as well. Once you press the{" "}
-                <Code>Stop</Code> button, you can either choose to continue to
-                submission, or scrap your recording and try again.
-              </Text>
-              <Text marginTop={3}>
-                When you have perfected your video, it&apos;s time for
-                submission. Scroll to the bottom of the page and fill in the
-                metadata fields that the project owner has requested, then click{" "}
-                <Code>Submit my video</Code>.
-              </Text>
-            </AccordionPanel>
-          </AccordionItem>
-
-          <AccordionItem>
-            <h2>
-              <AccordionButton>
-                <Box flex="1" textAlign="left">
-                  <Text color="white" fontWeight="bold">
-                    How we keep your data private
-                  </Text>
-                </Box>
-                <AccordionIcon />
-              </AccordionButton>
-            </h2>
-            <AccordionPanel pb={4}>
-              <Text>
-                While you are recording a video, none of that video or audio
-                data is being sent to our servers, nor is it sent to any other
-                server. You can confirm this using the developer tools of your
-                browser and looking in the Network or Requests tab.
-              </Text>
-              <Text marginTop={3}>
-                After you finish a recording or upload a video, we generate a
-                Google Drive URL using the project owner&apos;s credentials,
-                then send your audio and video data <em>directly</em> to Google
-                from your browser, bypassing our servers entirely.
-              </Text>
-              <Heading fontSize="100%" marginTop={6}>
-                What do we store?
-              </Heading>
-              <Text marginTop={5}>
-                Your IP address is logged, as well as your email address (only
-                if you are logged in). The metadata you have shared will be
-                attached to the uploaded video in Drive as well as being stored
-                in our database.
-              </Text>
-            </AccordionPanel>
           </AccordionItem>
         </Accordion>
       </Container>
