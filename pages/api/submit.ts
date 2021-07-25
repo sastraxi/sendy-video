@@ -13,6 +13,12 @@ type Data = {
   webLink: string,
 }
 
+const grabHeader = (header: string | string[] | undefined): string | undefined => {
+  if (!header) return undefined;
+  if (Array.isArray(header)) return header[0];
+  return header;
+}
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
@@ -76,7 +82,7 @@ export default async function handler(
 
       const submission = await prisma.submission.create({
         data: {
-          email: userEmail || payload.email,
+          email: userEmail || payload.email!,
           user: userEmail ? { connect: { email: userEmail } } : undefined,
           title: payload.title,
           project: { connect: { id: project.id }},
@@ -85,6 +91,22 @@ export default async function handler(
           webLink,
         },
       });
+
+      await drive.updateMetadata(fileId, {
+        "IP address": grabHeader(req.headers['x-real-ip']) || req.socket.remoteAddress || '<unknown>',
+        "Submission title": payload.title,
+        "Project name": project.name,
+        "User email": userEmail || payload.email!,
+        "Submisson type": !!userEmail ? "SSO" : "Anonymous",
+      });
+
+      if (userEmail) {
+        // share directly with submitter in the google ecosystem
+        await drive.shareWithUser(fileId, userEmail);
+      } else {
+        // the user can save the web link they're given to access the file later anonymously
+        await drive.makePublicWithLink(fileId, true);
+      }
 
       return res.status(200).json({
         submissionId: submission.id,

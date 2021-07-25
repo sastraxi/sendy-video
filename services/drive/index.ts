@@ -6,7 +6,10 @@ import createFolder from './create-folder';
 
 import ensureTopLevelFolderId from './ensure-top-level-folder-id';
 import getWebLink from './get-web-link';
+import makePublicWithLink from './make-public-with-link';
+import shareWithUser from './share-with-user';
 import startResumableUpload from './start-resumable-upload';
+import updateMetadata from './update-metadata';
 
 export const PROVIDER_ID = 'google';
 const CLIENT_ID = process.env.GOOGLE_ID;
@@ -69,5 +72,8 @@ export const createDriveClient = async (user: User, account?: Account) => {
     createFolder: createFolder(user, drive),
     startResumableUpload: startResumableUpload(client),
     getWebLink: getWebLink(user, drive),
+    makePublicWithLink: makePublicWithLink(drive),
+    shareWithUser: shareWithUser(drive),
+    updateMetadata: updateMetadata(drive),
   };
 };

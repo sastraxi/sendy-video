@@ -14,6 +14,11 @@
   - [ ] styling
 - [ ] view project page
   - [ ] styling
+- [ ] view submission page
+  - [ ] styling
+  - [ ] flash message if we just uploaded
+- [ ] post-submission page
+  - [ ] "sucessfully uploaded" message
 - [x] project submission page (via unique url)
   - [x] https://github.com/google/google-api-javascript-client
   - [x] xfer after recording is finished
@@ -28,12 +33,15 @@
   - [ ] max size for all submissions
   - [ ] max number of submissions
   - [x] require (google) auth
-- [ ] post-submission page
-- [ ] set metadata on project submission
-- [ ] api route to redirect to a submission's web link
+  - [ ] upload to sso user's drive + create shortcut
+- [x] set metadata on project submission
+- [x] share file with user
+- [x] api route to redirect to a submission's web link
 
 ## Deployment
-  - [ ] 
+  - [ ] database
+  - [ ] vercel
+  - [ ] CD
 
 ---
 
