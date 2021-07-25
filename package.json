@@ -22,7 +22,7 @@
     "google-auth-library": "^7.3.0",
     "googleapis": "^82.0.0",
     "next": "11.0.1",
-    "next-auth": "v4.0.0-next.19",
+    "next-auth": "^3.27.3",
     "react": "17.0.2",
     "react-dom": "17.0.2",
     "react-hook-form": "^7.11.1",
