@@ -2,6 +2,7 @@
 // https://github.com/muxinc/upchunk
 // https://stackoverflow.com/questions/27251953/how-to-create-file-object-from-blob
 import Head from "next/head";
+import { useRouter } from 'next/router';
 import { useRef, useState } from "react";
 import { getSession } from "next-auth/client";
 import { GetServerSideProps } from "next";
@@ -10,6 +11,8 @@ import Link from "next/link";
 import { Project, Submission } from "@prisma/client";
 import ReactMarkdown from "react-markdown";
 import ChakraUIRenderer from "chakra-ui-markdown-renderer";
+
+import SubmissionForm from '../../components/SubmissionForm';
 
 import {
   Avatar,
@@ -65,6 +68,7 @@ export default function Submit({ project, user }: PropTypes) {
   const [recording, setRecording] = useState<RecordedFile | null>(null);
   const [showHelp, setShowHelp] = useState<boolean>(false);
   const formEl = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
   if (!project) {
     return (
@@ -114,10 +118,13 @@ export default function Submit({ project, user }: PropTypes) {
       <ReactMarkdown components={ChakraUIRenderer()}>
         {project.markdown}
       </ReactMarkdown>
-      <Center>
-        <Input ref={formEl}></Input>
-        <Button>Submit my video</Button>
-      </Center>
+      <SubmissionForm
+        magicCode={project.magicCode}
+        user={user}
+        titleRef={formEl}
+        recording={recording || undefined}
+        onSuccess={(submissionId) => router.push(`/submission/${submissionId}`)}
+      />
     </>
   );
   const content = !showHelp ? projectContent : <HelpContent />;

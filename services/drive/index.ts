@@ -67,7 +67,7 @@ export const createDriveClient = async (user: User, account?: Account) => {
   return {
     ensureTopLevelFolderId: ensureTopLevelFolderId(user, drive),
     createFolder: createFolder(user, drive),
-    startResumableUpload: startResumableUpload(user, client),
+    startResumableUpload: startResumableUpload(client),
     getWebLink: getWebLink(user, drive),
   };
 };

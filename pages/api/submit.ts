@@ -5,30 +5,23 @@ import {
   createDriveClient,
   PROVIDER_ID as GOOGLE_PROVIDER_ID,
 } from '../../services/drive';
-
-type Payload = {
-  magicCode: string,
-  mimeType: string,
-  fileSize: string,
-  email?: string,
-  name?: string,
-}
+import { SubmissionFormData } from '../../models';
 
 type Data = {
   submissionId: number,
   resumableUrl: string,
+  webLink: string,
 }
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
-  const { query, method } = req;
+  const { body, method } = req;
   const session = await getSession({ req });
   const user = session?.user;
   const userEmail = user?.email;
-  const payload = query as Payload;
-  const name = user ? (user.name || user.email!) : payload.name!;
+  const payload = body as unknown as SubmissionFormData;
 
   switch (method) {
     case 'POST': {
@@ -38,15 +31,15 @@ export default async function handler(
       if (!payload.mimeType) {
         return res.status(400).end('mimeType must be provided')
       }
+      if (!payload.title) {
+        return res.status(400).end('title must be provided')
+      }
       if (
         !payload.fileSize ||
-        !Number.isInteger(payload.fileSize) || // XXX: typescript
-        payload.fileSize === '0'
+        !Number.isInteger(payload.fileSize) ||
+        payload.fileSize === 0
       ) {
         return res.status(400).end('fileSize must be a positive integer');
-      }
-      if (!user && !payload.name) {
-        return res.status(400).end('You must include a name if not logged in');
       }
 
       const project = await prisma.project.findUnique({
@@ -63,30 +56,40 @@ export default async function handler(
         return res.status(400).end(`the magicCode provided is invalid`);
       }
 
+      if (!user && !project.ssoEnforced) {
+        return res.status(400).end('This project requires you to be logged in to proceed.');
+      }
+
       const googleAccount = project.user.accounts.find(
         a => a.providerId === GOOGLE_PROVIDER_ID,
       );
       const drive = await createDriveClient(project.user, googleAccount);
       const { resumableUrl, fileId } = await drive.startResumableUpload(
-        project.driveFileId!, // XXX: if drive integration failed earlier...?
-        `${name} (${Date.now()}).mp4`, // FIXME: better-named files
-        +payload.fileSize,
+        project.folderFileId!, // FIXME: if drive integration failed earlier...?
+        `${payload.title} (${new Date().toISOString()}).mp4`, // FIXME: better-named files
+        payload.fileSize,
         payload.mimeType,
       );
+      const webLink = await drive.getWebLink(fileId);
+
+      console.log(resumableUrl, fileId, webLink);
 
       const submission = await prisma.submission.create({
         data: {
-          email: payload.email,
-          name,
-          projectId: project.id,
-          fileSize: +payload.fileSize,
-          driveFileId: fileId,
+          email: userEmail || payload.email,
+          user: userEmail ? { connect: { email: userEmail } } : undefined,
+          title: payload.title,
+          project: { connect: { id: project.id }},
+          fileSize: payload.fileSize,
+          fileId,
+          webLink,
         },
       });
 
       return res.status(200).json({
         submissionId: submission.id,
         resumableUrl,
+        webLink,
       });
     }
     default: {

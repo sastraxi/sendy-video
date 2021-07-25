@@ -20,7 +20,7 @@ const HelpContent = () => (
       Often, the difference between an <em>okay</em> video and a good one is in
       just a few minutes of prep: about 5 for each minute you want your
       submission to be in length. Put down on paper a few points to get to in
-      each minute, and keep yourself on schedule. Try to reduce your
+      each minute, and keep yourself on schedule.
     </Text>
     <Text marginTop={3}>
       Once you click the <Code>Record</Code> button, the user interface will

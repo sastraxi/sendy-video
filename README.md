@@ -5,15 +5,19 @@
 - [x] set up prisma
 - [x] postgres: projects collection and show my projects on logged-in page
 - [x] styled-components
-- [ ] create project page
+- [x] projects page
+  - [ ] styling
+- [x] create project page
   - [x] automatically create "Sendy Projects" folder
-  - [ ] automatically create sub-folder with project name (req. unique names per user)
+  - [x] automatically create sub-folder with project name (req. unique names per user)
     - folder can be moved without losing connectivity due to gdrive file IDs
+  - [ ] styling
 - [ ] view project page
-- [ ] project submission page (via unique url)
-  - [ ] https://github.com/google/google-api-javascript-client
-  - [ ] xfer after recording is finished
-  - [ ] reset (discard current video)
+  - [ ] styling
+- [x] project submission page (via unique url)
+  - [x] https://github.com/google/google-api-javascript-client
+  - [x] xfer after recording is finished
+  - [x] reset (discard current video)
   - [ ] upload my own video
 - [ ] make things not look like trash (fonts, logo, favicon, <head>)
 - [ ] list submissions on project page
@@ -23,9 +27,13 @@
   - [ ] max size per submission
   - [ ] max size for all submissions
   - [ ] max number of submissions
-  - [ ] require (google) auth
-  - [ ] require email validation (?)
-- deployment
+  - [x] require (google) auth
+- [ ] post-submission page
+- [ ] set metadata on project submission
+- [ ] api route to redirect to a submission's web link
+
+## Deployment
+  - [ ] 
 
 ---
 

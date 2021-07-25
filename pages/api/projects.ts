@@ -65,6 +65,7 @@ export default async function handler(
         return res.status(500).end("Something went wrong with Drive");
       }
 
+      let retries = 0;
       let project: Project | undefined = undefined;
       while (!project) {
         const magicCode = generateCode();
@@ -81,9 +82,8 @@ export default async function handler(
         } catch (e) {
           if (e instanceof Prisma.PrismaClientKnownRequestError) {
             if (e.code === PRISMA_UNIQUE_CONSTRAINT_VIOLATION) {
-              console.log(
-                `Magic code ${magicCode} already in use; generating a new one...`
-              );
+              retries += 1;
+              console.log(`[x] ${magicCode}`);
             } else {
               throw e;
             }
@@ -91,6 +91,9 @@ export default async function handler(
             throw e;
           }
         }
+      }
+      if (retries > 0) {
+        console.log(`Did ${retries} retries before finding an unused code.`);
       }
 
       return res.status(200).json({

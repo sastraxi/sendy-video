@@ -7,7 +7,7 @@ import { OAuth2Client } from "google-auth-library";
  * @requires the proper MIME type and content length of the file to be uploaded.
  * @returns the resumable upload URI, which can be shipped to a front-end.
  */
-const startResumableUpload = (user: User, client: OAuth2Client) =>
+const startResumableUpload = (client: OAuth2Client) =>
   async (
     parentFileId: string,
     fileName: string,
@@ -23,15 +23,19 @@ const startResumableUpload = (user: User, client: OAuth2Client) =>
       },
       {
         headers: {
-          "Authorization": `Bearer ${client.credentials.access_token}`,
+          "Authorization": `Bearer ${(await client.getAccessToken()).token}`,
           "X-Upload-Content-Type": mimeType,
           "X-Upload-Content-Length": `${fileSize}`,
           "Content-Type": "application/json; charset=UTF-8",
+          "Origin": process.env.NEXTAUTH_URL, // FIXME: shouldn't reference nextauth here
         },
       },
     );
     console.log('started multipart upload', response);
-    return response.headers.location;
+    return {
+      resumableUrl: response.headers.location,
+      fileId: response.headers['x-guploader-uploadid'],
+    };
   };
 
 export default startResumableUpload;

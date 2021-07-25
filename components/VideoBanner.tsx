@@ -246,6 +246,7 @@ const VideoBanner = (props: PropTypes) => {
         length: 0.001 * (new Date().getTime() - startedAt),
         url: URL.createObjectURL(blob),
         blob,
+        mimeType: mediaRecorder.mimeType,
       });
     });
 
