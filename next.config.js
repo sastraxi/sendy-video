@@ -8,5 +8,7 @@ module.exports = {
     }
     return config;
   },
-  target: 'serverless',
+  // https://github.com/netlify/netlify-plugin-nextjs/issues/527
+  // apparently vercel automatically does this, so this is for netlify
+  target: 'experimental-serverless-trace',
 }
