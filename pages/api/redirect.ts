@@ -36,7 +36,7 @@ export default async function handler(
         },
       });
 
-      if (!submission) {
+      if (!submission || !submission.webLink) {
         return res.status(400).end("Invalid submission ID.");
       }
 
