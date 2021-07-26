@@ -8,8 +8,9 @@ import {
 import prisma from "../../../utils/db";
 
 type Data = {
-  submissionId: number;
-  resumableUrl: string;
+  submissionId: number,
+  resumableUrl: string,
+  updateToken: string,
 };
 
 const grabHeader = (
@@ -73,14 +74,14 @@ export default async function handler(
         (a) => a.providerId === GOOGLE_PROVIDER_ID
       );
       const drive = await createDriveClient(project.user, googleAccount);
-      const { resumableUrl, fileId } = await drive.startResumableUpload(
+      const { resumableUrl } = await drive.startResumableUpload(
         project.folderFileId!, // FIXME: if drive integration failed earlier...?
         `${payload.title} (${new Date().toISOString()}).mp4`, // FIXME: better-named files
         payload.fileSize,
         payload.mimeType
       );
 
-      console.log(resumableUrl, fileId);
+      console.log(resumableUrl);
 
       const submission = await prisma.submission.create({
         data: {
@@ -89,16 +90,15 @@ export default async function handler(
           title: payload.title,
           project: { connect: { id: project.id } },
           fileSize: payload.fileSize,
-          fileId,
           metadata: {
-            "IP address":
+            "ip":
               grabHeader(req.headers["x-real-ip"]) ||
               req.socket.remoteAddress ||
               "<unknown>",
-            "Submission title": payload.title,
-            "Project name": project.name,
-            "User email": userEmail || payload.email!,
-            "Submisson type": !!userEmail ? "SSO" : "Anonymous",
+            "title": payload.title,
+            "project": project.name,
+            "email": userEmail || payload.email!,
+            "source": !!userEmail ? "SSO" : "Anonymous",
           },
         },
       });
@@ -106,6 +106,7 @@ export default async function handler(
       return res.status(200).json({
         submissionId: submission.id,
         resumableUrl,
+        updateToken: submission.updateToken,
       });
     }
     default: {

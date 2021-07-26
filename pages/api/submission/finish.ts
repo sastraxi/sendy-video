@@ -7,7 +7,9 @@ import {
 import prisma from "../../../utils/db";
 
 type Payload = {
-  submissionId: number;
+  submissionId: number,
+  fileId: string,
+  updateToken: string,
 };
 
 type Data = {
@@ -29,6 +31,12 @@ export default async function handler(
       if (!payload.submissionId) {
         return res.status(400).end("submissionId must be provided");
       }
+      if (!payload.fileId) {
+        return res.status(400).end("fileId must be provided");
+      }
+      if (!payload.updateToken) {
+        return res.status(400).end("updateToken must be provided");
+      }
 
       const submission = await prisma.submission.findUnique({
         where: {
@@ -47,11 +55,15 @@ export default async function handler(
         },
       });
 
-      if (!submission || !!submission.webLink) {
+      if (!submission || !!submission.fileId) {
         return res.status(400).end(`the submissionId provided is invalid`);
       }
+      if (submission.updateToken !== payload.updateToken) {
+        return res.status(400).end('the updateToken provided is invalid');
+      }
 
-      const { project, fileId } = submission;
+      const { fileId } = payload;
+      const { project } = submission;
       const googleAccount = project.user.accounts.find(
         (a) => a.providerId === GOOGLE_PROVIDER_ID
       );

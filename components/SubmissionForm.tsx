@@ -74,7 +74,7 @@ const SubmissionForm = (props: PropTypes) => {
     console.log(data);
     setSubmitting(true); // FIXME: do a real state machine
     const initResponse = await axios.post("/api/submission/initiate", data);
-    const { submissionId, resumableUrl } = initResponse.data;
+    const { submissionId, resumableUrl, updateToken } = initResponse.data;
 
     setUploading(true);
     const { blob, mimeType } = props.recording!;
@@ -86,10 +86,13 @@ const SubmissionForm = (props: PropTypes) => {
         timeout: 120 * 1000, // FIXME: seriously?!?
       });
       console.log("upload response", uploadResponse.data);
+      const { id: fileId } = uploadResponse.data;
       setUploading(false);
 
       const finishResponse = await axios.post("/api/submission/finish", {
         submissionId,
+        updateToken,
+        fileId,
       });
       const { webLink } = finishResponse.data;
       console.log("web link", webLink);
@@ -147,17 +150,15 @@ const SubmissionForm = (props: PropTypes) => {
           </FormHelperText>
         </FormControl>
         <HStack>
-          {submitting && (
-            <Button
-              isLoading={submitting}
-              mt={4}
-              type="submit"
-              size="lg"
-              isDisabled={!props.recording}
-            >
-              Submit my video
-            </Button>
-          )}
+          <Button
+            isLoading={submitting}
+            mt={4}
+            type="submit"
+            size="lg"
+            isDisabled={!props.recording}
+          >
+            Submit my video
+          </Button>
           {uploading && (
             <Progress colorScheme="green" size="md" isIndeterminate w="50%" />
           )}

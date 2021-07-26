@@ -108,7 +108,8 @@ model Submission {
   userEmail   String?
   email       String?
   title       String
-  fileId      String
+  updateToken String  @default(uuid())
+  fileId      String?
   webLink     String?
   metadata    Json
   project     Project @relation(fields: [projectId], references: [id])

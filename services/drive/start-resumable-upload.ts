@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { User } from "@prisma/client";
 import { OAuth2Client } from "google-auth-library";
 
 /**
@@ -31,10 +30,8 @@ const startResumableUpload = (client: OAuth2Client) =>
         },
       },
     );
-    console.log('started multipart upload', response);
     return {
       resumableUrl: response.headers.location,
-      fileId: response.headers['x-guploader-uploadid'],
     };
   };
 
