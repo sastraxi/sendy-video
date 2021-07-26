@@ -1,9 +1,9 @@
-import NextAuth from "next-auth"
-import { PrismaAdapter } from "@next-auth/prisma-adapter"
-import prisma from '../../../utils/db'
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import NextAuth from "next-auth";
 import {
-  createGoogleProvider,
-} from '../../../services/drive'
+  createGoogleProvider, PROVIDER_ID as GOOGLE_PROVIDER_ID, refreshAccessToken, SEC_TO_MS
+} from '../../../services/drive';
+import prisma from '../../../utils/db';
 
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
@@ -46,14 +46,84 @@ export default NextAuth({
   // https://next-auth.js.org/configuration/callbacks
   callbacks: {
     async signIn(user, account, profile) {
+      console.log('signed in with account', profile, account);
       if (!user.email) {
         console.error('Tried to sign in with user without an email', user);
         return false;
       }
+    
+      // this is pretty ugly, but necessary
+      // https://github.com/nextauthjs/adapters/issues/48
+      const { expires_in, accessToken } = account;
+      const expiresAt = expires_in ? new Date(
+        Date.now() + expires_in! * SEC_TO_MS
+      ) : undefined;
+      await prisma.accessToken.upsert({
+        where: { token: accessToken },
+        update: { expiresAt },
+        create: {
+          token: accessToken,
+          expiresAt,
+        },
+      });
+
       return true;
     },
     // async redirect(url, baseUrl) { return baseUrl },
-    // async session(session, user) { return session },
+    async session(session, user) {
+      const dbUser = await prisma.user.findUnique({
+        where: {
+          email: session!.user!.email!,
+        },
+        include: {
+          accounts: true,
+        },
+      });
+      const googleAccount = dbUser?.accounts.find(
+        (a) => a.providerId === GOOGLE_PROVIDER_ID,
+      );
+      const accessToken = await prisma.accessToken.findUnique({
+        where: {
+          token: googleAccount?.accessToken!,
+        },
+      });
+
+      if (googleAccount && googleAccount.refreshToken && accessToken!.expiresAt && accessToken!.expiresAt.valueOf() < Date.now()) {
+        try {
+          const refreshedToken = await refreshAccessToken(googleAccount);
+          if (!refreshedToken.error) {
+            await Promise.all([
+              prisma.accessToken.delete({ where: { token: googleAccount.accessToken! }}),
+              prisma.accessToken.create({
+                data: {
+                  token: refreshedToken.accessToken,
+                  expiresAt: refreshedToken.accessTokenExpires, 
+                },
+              }),
+            ]);
+          } else {
+            console.warn('Not updating accessToken table as refresh failed', refreshedToken);
+          }
+          return {
+            ...session,
+            google: {
+              ...googleAccount,
+              ...refreshedToken,
+            },
+          };
+        } catch (error) {
+          return {
+            ...session,
+            google: { ...googleAccount, couldNotRefreshToken: true },
+          };
+        }
+      }
+
+      return {
+        ...session,
+        google: googleAccount,
+      };
+    },
     // async jwt(token, user, account, profile, isNewUser) { return token }
   },
 
