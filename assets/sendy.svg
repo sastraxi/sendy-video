@@ -1,0 +1,15 @@
+<svg viewBox="120 95 530 405" fill="none" stroke-width="5" stroke="black"
+    xmlns="http://www.w3.org/2000/svg">
+
+    <path
+        d="M150,180 C243,269 433,304 500,300 L210,300 Z"
+        fill="rgb(240,210,100)"
+        stroke-linejoin="round"
+    />
+    <path
+        d="M150,420 C243,331 433,296 500,300 L210,300 Z"
+        fill="rgb(180,100,160)"
+        stroke-linejoin="round"
+    />
+
+</svg>

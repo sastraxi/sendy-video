@@ -1,5 +1,9 @@
+import { Heading } from '@chakra-ui/react';
 import { ClientSafeProvider, getProviders, signIn, getSession } from 'next-auth/client'
 import Head from 'next/head'
+import Image from 'next/image';
+
+import SendyLogo from '../assets/sendy.svg';
 
 export default function Login({ providers }: {
   providers: Record<string, ClientSafeProvider>
@@ -13,9 +17,13 @@ export default function Login({ providers }: {
       </Head>
 
       <main>
-        <h1>
-          sendy 📷
-        </h1>
+        <Heading size="lg">
+          sendy
+        </Heading>
+
+        <Image src={SendyLogo} width="100px" height="100px" alt="Sendy logo" />
+
+      
 
         <p>
           Create magic links that let your friends

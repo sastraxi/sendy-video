@@ -2,11 +2,25 @@ import Head from "next/head";
 import { getSession } from "next-auth/client";
 import { GetServerSideProps } from "next";
 import prisma from "../../utils/db";
-import ProjectsTable, { PropTypes as ProjectPropTypes } from '../../components/ProjectsTable'
-import Link from 'next/link'
+import ProjectsTable, {
+  PropTypes as ProjectPropTypes,
+} from "../../components/ProjectsTable";
+import Link from "next/link";
 
-type PropTypes = ProjectPropTypes & {
-};
+import Image from "next/image";
+
+import {
+  Heading,
+  Container,
+  Button,
+  Flex,
+  Text,
+  Box,
+  Spacer,
+} from "@chakra-ui/react";
+import SendyLogo from "../../assets/sendy.svg";
+
+type PropTypes = ProjectPropTypes & {};
 
 export default function ProjectsList({ projects }: PropTypes) {
   return (
@@ -17,16 +31,21 @@ export default function ProjectsList({ projects }: PropTypes) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main>
-        <h1>sendy 📷 | projects</h1>
+      <Container maxW="960px" pt={12}>
+        <Flex alignItems="center" mb={4}>
+          <Heading size="xl">sendy</Heading>
+          <Image src={SendyLogo} width="72px" height="72px" alt="Sendy logo" />
+          <Spacer />
+          <Link href="/projects/new" passHref>
+            <Button>New Project</Button>
+          </Link>
+        </Flex>
 
-        <Link href="/projects/new" passHref>
-          <button>New Project</button>
-        </Link>
-
-        {projects.length === 0 && <p>You have no projects.</p>}
-        {projects.length > 0 && <ProjectsTable projects={projects} />}
-      </main>
+        <Box mt={4}>
+          {projects.length === 0 && <Text>You have no projects.</Text>}
+          {projects.length > 0 && <ProjectsTable projects={projects} />}
+        </Box>
+      </Container>
     </div>
   );
 }

@@ -2,6 +2,21 @@ import Link from "next/link";
 import styled from "@emotion/styled";
 import { Project } from "@prisma/client";
 
+import {
+  Table,
+  Thead,
+  Th,
+  Td,
+  Tr,
+  Tbody,
+  Text,
+  Button,
+  HStack,
+  Icon,
+} from "@chakra-ui/react";
+
+import { RiExternalLinkLine } from "react-icons/ri";
+
 export type ProjectAndSubmissionCount = Project & {
   _count: {
     submissions: number;
@@ -21,42 +36,51 @@ const Anchor = styled.a`
 
 const ProjectsTable = ({ projects }: PropTypes) => {
   return (
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Submissions</th>
-          <th>Size</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
+    <Table>
+      <Thead>
+        <Tr>
+          <Th>Name</Th>
+          <Th isNumeric>Submissions</Th>
+          <Th isNumeric>Size</Th>
+          <Th isNumeric>Actions</Th>
+        </Tr>
+      </Thead>
+      <Tbody>
         {projects.map((project) => (
-          <tr key={project.id}>
-            <td>
+          <Tr key={project.id}>
+            <Td>
               <Link href={`/projects/${project.id}`} passHref>
                 <Anchor>{project.name}</Anchor>
               </Link>
-            </td>
-            <td>
-              <span>{project._count!.submissions}</span>
-            </td>
-            <td></td>
-            <td>
-              {project.folderWebLink && (
-                <Link href={project.folderWebLink} passHref>
-                  <Anchor>Google Drive</Anchor>
+            </Td>
+            <Td isNumeric>
+              <Text>{project._count!.submissions}</Text>
+            </Td>
+            <Td isNumeric></Td>
+            <Td isNumeric>
+                <Link href={`/p/${project.magicCode}`} passHref>
+                  <Button size="xs">
+                    Submit...
+                  </Button>
                 </Link>
-              )}
-              <br></br>
-              <Link href={`/p/${project.magicCode}`} passHref>
-                <Anchor>Submit...</Anchor>
-              </Link>
-            </td>
-          </tr>
+                {project.folderWebLink && (
+                  <Link href={project.folderWebLink} passHref>
+                    <Button
+                      ml={2}
+                      as="a"
+                      target="_blank"
+                      size="xs"
+                      leftIcon={<Icon as={RiExternalLinkLine} />}
+                    >
+                      View in Google Drive
+                    </Button>
+                  </Link>
+                )}
+            </Td>
+          </Tr>
         ))}
-      </tbody>
-    </table>
+      </Tbody>
+    </Table>
   );
 };
 
