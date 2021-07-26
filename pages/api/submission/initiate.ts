@@ -1,23 +1,24 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
-import prisma from '../../utils/db';
-import { getSession } from 'next-auth/client';
+import type { NextApiRequest, NextApiResponse } from "next";
+import { getSession } from "next-auth/client";
+import { SubmissionFormData } from "../../../models";
 import {
   createDriveClient,
   PROVIDER_ID as GOOGLE_PROVIDER_ID,
-} from '../../services/drive';
-import { SubmissionFormData } from '../../models';
+} from "../../../services/drive";
+import prisma from "../../../utils/db";
 
 type Data = {
-  submissionId: number,
-  resumableUrl: string,
-  webLink: string,
-}
+  submissionId: number;
+  resumableUrl: string;
+};
 
-const grabHeader = (header: string | string[] | undefined): string | undefined => {
+const grabHeader = (
+  header: string | string[] | undefined
+): string | undefined => {
   if (!header) return undefined;
   if (Array.isArray(header)) return header[0];
   return header;
-}
+};
 
 export default async function handler(
   req: NextApiRequest,
@@ -30,22 +31,22 @@ export default async function handler(
   const payload = body as unknown as SubmissionFormData;
 
   switch (method) {
-    case 'POST': {
+    case "POST": {
       if (!payload.magicCode) {
-        return res.status(400).end('magicCode must be provided')
+        return res.status(400).end("magicCode must be provided");
       }
       if (!payload.mimeType) {
-        return res.status(400).end('mimeType must be provided')
+        return res.status(400).end("mimeType must be provided");
       }
       if (!payload.title) {
-        return res.status(400).end('title must be provided')
+        return res.status(400).end("title must be provided");
       }
       if (
         !payload.fileSize ||
         !Number.isInteger(payload.fileSize) ||
         payload.fileSize === 0
       ) {
-        return res.status(400).end('fileSize must be a positive integer');
+        return res.status(400).end("fileSize must be a positive integer");
       }
 
       const project = await prisma.project.findUnique({
@@ -63,60 +64,53 @@ export default async function handler(
       }
 
       if (!user && !project.ssoEnforced) {
-        return res.status(400).end('This project requires you to be logged in to proceed.');
+        return res
+          .status(400)
+          .end("This project requires you to be logged in to proceed.");
       }
 
       const googleAccount = project.user.accounts.find(
-        a => a.providerId === GOOGLE_PROVIDER_ID,
+        (a) => a.providerId === GOOGLE_PROVIDER_ID
       );
       const drive = await createDriveClient(project.user, googleAccount);
       const { resumableUrl, fileId } = await drive.startResumableUpload(
         project.folderFileId!, // FIXME: if drive integration failed earlier...?
         `${payload.title} (${new Date().toISOString()}).mp4`, // FIXME: better-named files
         payload.fileSize,
-        payload.mimeType,
+        payload.mimeType
       );
-      const webLink = await drive.getWebLink(fileId);
 
-      console.log(resumableUrl, fileId, webLink);
+      console.log(resumableUrl, fileId);
 
       const submission = await prisma.submission.create({
         data: {
           email: userEmail || payload.email!,
           user: userEmail ? { connect: { email: userEmail } } : undefined,
           title: payload.title,
-          project: { connect: { id: project.id }},
+          project: { connect: { id: project.id } },
           fileSize: payload.fileSize,
           fileId,
-          webLink,
+          metadata: {
+            "IP address":
+              grabHeader(req.headers["x-real-ip"]) ||
+              req.socket.remoteAddress ||
+              "<unknown>",
+            "Submission title": payload.title,
+            "Project name": project.name,
+            "User email": userEmail || payload.email!,
+            "Submisson type": !!userEmail ? "SSO" : "Anonymous",
+          },
         },
       });
-
-      await drive.updateMetadata(fileId, {
-        "IP address": grabHeader(req.headers['x-real-ip']) || req.socket.remoteAddress || '<unknown>',
-        "Submission title": payload.title,
-        "Project name": project.name,
-        "User email": userEmail || payload.email!,
-        "Submisson type": !!userEmail ? "SSO" : "Anonymous",
-      });
-
-      if (userEmail) {
-        // share directly with submitter in the google ecosystem
-        await drive.shareWithUser(fileId, userEmail);
-      } else {
-        // the user can save the web link they're given to access the file later anonymously
-        await drive.makePublicWithLink(fileId, true);
-      }
 
       return res.status(200).json({
         submissionId: submission.id,
         resumableUrl,
-        webLink,
       });
     }
     default: {
-      res.setHeader('Allow', ['POST'])
-      res.status(405).end(`Method ${method} Not Allowed`)
+      res.setHeader("Allow", ["POST"]);
+      res.status(405).end(`Method ${method} Not Allowed`);
     }
   }
 }

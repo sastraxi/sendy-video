@@ -1,25 +1,21 @@
-import { RefObject, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import axios from "axios";
-import { User } from "next-auth";
-
 import {
   Button,
-  Input,
-  Icon,
-  Progress,
   FormControl,
-  FormLabel,
-  FormErrorMessage,
-  InputRightElement,
   FormHelperText,
-  Stack,
+  FormLabel,
+  HStack,
+  Icon,
+  Input,
   InputGroup,
-  Center,
+  InputRightElement,
+  Progress,
+  Stack,
 } from "@chakra-ui/react";
-
+import axios from "axios";
+import { User } from "next-auth";
+import { RefObject, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { BiCheck } from "react-icons/bi";
-
 import { RecordedFile, SubmissionFormData } from "../models";
 
 function formatBytes(bytes: number, decimals = 2) {
@@ -76,25 +72,33 @@ const SubmissionForm = (props: PropTypes) => {
 
   const onSubmit = handleSubmit(async (data: SubmissionFormData) => {
     console.log(data);
-    setSubmitting(true);
-    const submitResponse = await axios.post("/api/submit", data);
-    const { submissionId, resumableUrl } = submitResponse.data;
-    setSubmitting(false);
+    setSubmitting(true); // FIXME: do a real state machine
+    const initResponse = await axios.post("/api/submission/initiate", data);
+    const { submissionId, resumableUrl } = initResponse.data;
 
     setUploading(true);
     const { blob, mimeType } = props.recording!;
     try {
       const uploadResponse = await axios.post(resumableUrl, blob, {
         headers: {
-          'Content-Type': mimeType,
+          "Content-Type": mimeType,
         },
-        timeout: 120000,
+        timeout: 120 * 1000, // FIXME: seriously?!?
       });
+      console.log("upload response", uploadResponse.data);
       setUploading(false);
+
+      const finishResponse = await axios.post("/api/submission/finish", {
+        submissionId,
+      });
+      const { webLink } = finishResponse.data;
+      console.log("web link", webLink);
+      setSubmitting(false);
       props.onSuccess(submissionId);
     } catch (err) {
       console.error(err);
       setUploading(false);
+      setSubmitting(false);
     }
   });
 
@@ -142,16 +146,8 @@ const SubmissionForm = (props: PropTypes) => {
             Your email address will be shared with the project owner.
           </FormHelperText>
         </FormControl>
-        <Center>
-          {uploading && (
-            <Progress
-              colorScheme="green"
-              size="md"
-              isIndeterminate
-              w="50%"
-            />
-          )}
-          {!uploading && (
+        <HStack>
+          {submitting && (
             <Button
               isLoading={submitting}
               mt={4}
@@ -162,7 +158,10 @@ const SubmissionForm = (props: PropTypes) => {
               Submit my video
             </Button>
           )}
-        </Center>
+          {uploading && (
+            <Progress colorScheme="green" size="md" isIndeterminate w="50%" />
+          )}
+        </HStack>
       </Stack>
     </form>
   );

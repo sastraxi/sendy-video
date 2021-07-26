@@ -109,7 +109,8 @@ model Submission {
   email       String?
   title       String
   fileId      String
-  webLink     String
+  webLink     String?
+  metadata    Json
   project     Project @relation(fields: [projectId], references: [id])
   user        User?   @relation(fields: [userEmail], references: [email])
 }
