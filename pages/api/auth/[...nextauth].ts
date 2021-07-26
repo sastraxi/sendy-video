@@ -71,24 +71,30 @@ export default NextAuth({
     },
     // async redirect(url, baseUrl) { return baseUrl },
     async session(session, user) {
-      const dbUser = await prisma.user.findUnique({
+      if (!session?.user?.email) {
+        return session;
+      }
+
+      const dbUser = (await prisma.user.findUnique({
         where: {
-          email: session!.user!.email!,
+          email: session.user.email!,
         },
         include: {
           accounts: true,
         },
-      });
+      }))!;
       const googleAccount = dbUser?.accounts.find(
         (a) => a.providerId === GOOGLE_PROVIDER_ID,
       );
+
+      // console.log('looking for', googleAccount?.accessToken);
       const accessToken = await prisma.accessToken.findUnique({
         where: {
           token: googleAccount?.accessToken!,
         },
       });
 
-      if (googleAccount && googleAccount.refreshToken && accessToken!.expiresAt && accessToken!.expiresAt.valueOf() < Date.now()) {
+      if (googleAccount && googleAccount.refreshToken && (!accessToken || accessToken.expiresAt!.valueOf() < Date.now())) {
         try {
           const refreshedToken = await refreshAccessToken(googleAccount);
           if (!refreshedToken.error) {
@@ -100,6 +106,12 @@ export default NextAuth({
                   expiresAt: refreshedToken.accessTokenExpires, 
                 },
               }),
+              prisma.account.update({
+                where: { id: googleAccount.id },
+                data: {
+                  accessToken: refreshedToken.accessToken,
+                },
+              })
             ]);
           } else {
             console.warn('Not updating accessToken table as refresh failed', refreshedToken);
