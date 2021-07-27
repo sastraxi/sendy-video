@@ -7,11 +7,14 @@
 - [x] styled-components
 - [ ] home page
   - [x] prototype as "projects page"
+  - [x] list projects
+    - [ ] copy url
+    - [ ] copy greeting
   - [ ] list submissions
     - [ ] list submissions-as-guest (attach to session?)
     - [ ] direct links to videos
-  - [ ] cool layout
-  - [ ] styling
+  - [x] cool layout
+  - [x] styling
 - [x] create project page
   - [x] automatically create "Sendy Projects" folder
   - [x] automatically create sub-folder with project name (req. unique names per user)
@@ -28,7 +31,6 @@
     - [ ] profile badge + user menu
   - [ ] basic theme colours in chakra
   - [ ] basic fonts
-  - [ ] that "edges of cubes" grid pattern
 - [ ] post-submission page
   - [ ] "sucessfully uploaded" message
 - [x] project submission page (via unique url)
