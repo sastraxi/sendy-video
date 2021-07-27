@@ -1,14 +1,25 @@
-import Head from "next/head";
-import { getSession } from "next-auth/client";
-import { GetServerSideProps } from "next";
-import prisma from "../../utils/db";
+import {
+  Button,
+  Container,
+  Flex,
+  Heading,
+  Icon,
+  Spacer,
+} from "@chakra-ui/react";
 import { Project } from "@prisma/client";
-import Link from 'next/link'
-import { createDriveClient, PROVIDER_ID as GOOGLE_PROVIDER_ID } from "../../services/drive";
+import axios from "axios";
+import { GetServerSideProps } from "next";
+import { getSession } from "next-auth/client";
+import Head from "next/head";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { RiExternalLinkLine } from "react-icons/ri";
+import ProjectForm from "../../components/ProjectForm";
+import { ProjectFormData } from "../../models";
+import prisma from "../../utils/db";
 
 // import { useForm } from "react-hook-form";
 // https://react-hook-form.com/get-started#TypeScript
-
 
 type ProjectAndSubmissionCount = Project & {
   _count: {
@@ -17,19 +28,17 @@ type ProjectAndSubmissionCount = Project & {
 };
 
 type PropTypes = {
-  project: ProjectAndSubmissionCount,
-  driveLink: string,
+  project: ProjectAndSubmissionCount;
 };
 
-// type Inputs = {
-//   markdown: string,
-// }
+export default function EditProject(props: PropTypes) {
+  const router = useRouter();
+  const onSubmit = async (data: ProjectFormData) => {
+    // TODO: remove name, add back id
+    alert("Allan please implement PATCH /api/project/:id")
+  };
 
-export default function NewProject(props: PropTypes) {
-  // const { register, handleSubmit, watch, formState: { errors } } = useForm();
-  // const onSubmit = (data: any) => console.log(data);
-
-  const { project, driveLink } = props;
+  const { project } = props;
   return (
     <div>
       <Head>
@@ -38,22 +47,38 @@ export default function NewProject(props: PropTypes) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main>
-        <h1>sendy 📷 | view project</h1>
-        <h2>{project.name}</h2>
+      <Container maxW="960px" pt={12}>
+        <Flex>
+          <Heading size="xl" mb={8}>
+            {project.name}
+          </Heading>
+          <Spacer />
 
-        <Link href={driveLink} passHref>
-          <button>View on Google Drive</button>
-        </Link>
-
-        <textarea>{project.markdown}</textarea>
-
-      </main>
+          {project.folderWebLink && (
+            <Link href={project.folderWebLink} passHref>
+              <Button
+                ml={2}
+                as="a"
+                target="_blank"
+                size="lg"
+                leftIcon={<Icon as={RiExternalLinkLine} />}
+                colorScheme="blue"
+              >
+                View Submissions ({project._count?.submissions})
+              </Button>
+            </Link>
+          )}
+        </Flex>
+        <ProjectForm project={project} onSubmit={onSubmit} />
+      </Container>
     </div>
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
+export const getServerSideProps: GetServerSideProps = async ({
+  req,
+  query,
+}) => {
   const session = await getSession({ req });
   if (!session?.user) {
     return {
@@ -63,14 +88,14 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
       },
     };
   }
-  const { projectId } = query
+  const { projectId } = query;
   if (!projectId) {
     return {
       redirect: {
         permanent: false,
-        destination: '/projects',
-      }
-    }
+        destination: "/projects",
+      },
+    };
   }
   const { email } = session.user;
   const project = await prisma.project.findFirst({
@@ -88,9 +113,9 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
     return {
       redirect: {
         permanent: false,
-        destination: '/projects',
-      }
-    }
+        destination: "/projects",
+      },
+    };
   }
   return { props: { project } };
 };

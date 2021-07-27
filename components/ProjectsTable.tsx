@@ -60,7 +60,7 @@ const ProjectsTable = ({ projects }: PropTypes) => {
             <Td isNumeric>
                 <Link href={`/p/${project.magicCode}`} passHref>
                   <Button size="xs">
-                    Submit...
+                    {project.magicCode}
                   </Button>
                 </Link>
                 {project.folderWebLink && (
@@ -71,8 +71,9 @@ const ProjectsTable = ({ projects }: PropTypes) => {
                       target="_blank"
                       size="xs"
                       leftIcon={<Icon as={RiExternalLinkLine} />}
+                      colorScheme="blue"
                     >
-                      View in Google Drive
+                      Submissions
                     </Button>
                   </Link>
                 )}

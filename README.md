@@ -17,14 +17,15 @@
   - [x] automatically create sub-folder with project name (req. unique names per user)
     - folder can be moved without losing connectivity due to gdrive file IDs
   - [x] styling
-- [ ] view project page
-  - [ ] styling
+- [x] view project page
+  - [x] styling
 - [ ] view submission page
   - [ ] styling
   - [ ] flash message if we just uploaded
 - [ ] common ui
-  - [ ] logo-that-goes-home size={['md', 'sm']}
-  - [ ] profile badge + user menu
+  - [ ] header
+    - [ ] logo-that-goes-home size={['md', 'sm']}
+    - [ ] profile badge + user menu
   - [ ] basic theme colours in chakra
   - [ ] basic fonts
   - [ ] that "edges of cubes" grid pattern
@@ -35,22 +36,27 @@
   - [x] xfer after recording is finished
   - [x] reset (discard current video)
   - [ ] upload my own video
+  - [ ] do enumeration for Capture Settings *after* getting permission
 - [ ] extra constraints
   - [ ] max length
   - [ ] max size per submission
   - [ ] max size for all submissions
-  - [ ] max number of submissions
+  - [ ] limit to one submission per user + "retry"
   - [ ] close submissions at some instant in the future
   - [x] require (google) auth
   - [ ] upload to sso user's drive + create shortcut
 - [x] set metadata on project submission
 - [x] share file with user
 - [x] api route to redirect to a submission's web link
+- [ ] sharing prisma instances / connection pooling: https://www.prisma.io/docs/support/help-articles/nextjs-prisma-client-dev-practices
+- [ ] correctly dispose of MediaStream
 
 ## Deployment
 - [x] database
 - [x] vercel
 - [x] CD
+- [ ] CSP / vercel-analytics: https://stackoverflow.com/questions/65551212/using-csp-in-nextjs-nginx-and-material-uissr
+- [ ] CORS: www.sendy.video was passed in as Origin to Google, but they expected sendy.video
 
 ---
 
