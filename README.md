@@ -10,29 +10,34 @@
   - [x] list projects
     - [x] copy url
     - [ ] copy greeting
-  - [ ] list submissions
+    - [ ] isOpen (project status column)
+    - [ ] make # submissions the external link to gdrive
+    - [ ] calc (cache?) total size
+  - [x] list submissions
     - [ ] list submissions-as-guest (attach to session?)
-    - [ ] direct links to videos
+    - [x] direct links to videos
+    - [ ] delete submission (w/confirmation)
   - [x] cool layout
   - [x] styling
+  - [ ] action buttons --> icon buttons
+  - [ ] only show 5 in each table; order by creation desc; paginator
 - [x] create project page
   - [x] automatically create "Sendy Projects" folder
   - [x] automatically create sub-folder with project name (req. unique names per user)
     - folder can be moved without losing connectivity due to gdrive file IDs
   - [x] styling
+  - [x] "sucessfully created" message
 - [x] view project page
   - [x] styling
-- [ ] view submission page
-  - [ ] styling
-  - [ ] flash message if we just uploaded
 - [ ] common ui
   - [ ] header
     - [ ] logo-that-goes-home size={['md', 'sm']}
     - [ ] profile badge + user menu
   - [ ] basic theme colours in chakra
   - [ ] basic fonts
+  - [ ] mobile responsive ui
 - [x] post-submission back to home page
-  - [ ] "sucessfully uploaded" message
+  - [x] "sucessfully uploaded" message
 - [x] project submission page (via unique url)
   - [x] https://github.com/google/google-api-javascript-client
   - [x] xfer after recording is finished
