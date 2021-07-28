@@ -29,7 +29,8 @@ const SubmissionRow = ({ submission }: { submission: SubmissionAndProject }) => 
   return (
     <Tr>
       <Td>
-        <Text>{submission.title}</Text>
+        { submission.webLink && <ChakraLink isExternal href={submission.webLink}>{submission.title}<Icon verticalAlign="-2px" as={RiExternalLinkLine} ml={2} /></ChakraLink> }
+        { !submission.webLink && <Text>{submission.title}</Text> }
         <Text fontSize="sm" color="blackAlpha.600">{submission.project.name}</Text>
       </Td>
       <Td isNumeric>

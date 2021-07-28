@@ -3,7 +3,7 @@ import { PrismaClient } from "@prisma/client";
 // Prevent multiple instances of Prisma Client in development
 declare const global: NodeJS.Global & { prisma?: PrismaClient };
 
-let prisma: PrismaClient;
+let prisma;
 if (!global.prisma) {
   prisma = new PrismaClient({
     log: [
@@ -36,4 +36,4 @@ if (!global.prisma) {
   prisma = global.prisma;
 }
 
-export default prisma;
+export default prisma as PrismaClient;

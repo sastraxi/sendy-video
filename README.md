@@ -59,7 +59,7 @@
 - [x] set metadata on project submission
 - [x] share file with user
 - [x] api route to redirect to a submission's web link
-- [ ] dev: sharing prisma instances / connection pooling: https://www.prisma.io/docs/support/help-articles/nextjs-prisma-client-dev-practices
+- [x] dev: sharing prisma instances / connection pooling: https://www.prisma.io/docs/support/help-articles/nextjs-prisma-client-dev-practices
 
 ## Deployment
 - [x] database
