@@ -38,7 +38,7 @@ const ProjectRow = ({ project }: { project: ProjectAndSubmissionCount }) => {
   const { hasCopied, onCopy } = useClipboard(
     `${typeof(window) !== 'undefined' ? window.location.origin : process.env.NEXTAUTH_URL}/p/${
       project.magicCode
-    }`
+    }`, 3500
   );
   return (
     <Tr>
@@ -59,7 +59,7 @@ const ProjectRow = ({ project }: { project: ProjectAndSubmissionCount }) => {
           leftIcon={<Icon as={HiOutlineClipboardCopy} w={4} h={4} mt="-2px" />}
           colorScheme={hasCopied ? "pink" : undefined}
         >
-          {hasCopied ? "Copied!" : "Get link"}
+          {hasCopied ? "Copied!" : "Share link"}
         </Button>
       </Td>
     </Tr>
