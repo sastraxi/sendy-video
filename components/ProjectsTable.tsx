@@ -9,6 +9,7 @@ import {
   Thead,
   Tr,
   useClipboard,
+  Link as ChakraLink,
 } from "@chakra-ui/react";
 import styled from "@emotion/styled";
 import { Project } from "@prisma/client";
@@ -47,7 +48,8 @@ const ProjectRow = ({ project }: { project: ProjectAndSubmissionCount }) => {
         </Link>
       </Td>
       <Td isNumeric>
-        <Text>{project._count!.submissions}</Text>
+        { project.folderWebLink && <ChakraLink isExternal href={project.folderWebLink}>{project._count!.submissions}<Icon verticalAlign="-2px" as={RiExternalLinkLine} ml={2} /></ChakraLink> }
+        { !project.folderWebLink && <Text>{project._count!.submissions}</Text> }
       </Td>
       <Td isNumeric></Td>
       <Td isNumeric>
@@ -59,20 +61,6 @@ const ProjectRow = ({ project }: { project: ProjectAndSubmissionCount }) => {
         >
           {hasCopied ? "Copied!" : "Get link"}
         </Button>
-        {project.folderWebLink && (
-          <Link href={project.folderWebLink} passHref>
-            <Button
-              ml={2}
-              as="a"
-              target="_blank"
-              size="xs"
-              leftIcon={<Icon as={RiExternalLinkLine} />}
-              colorScheme="blue"
-            >
-              Submissions
-            </Button>
-          </Link>
-        )}
       </Td>
     </Tr>
   );

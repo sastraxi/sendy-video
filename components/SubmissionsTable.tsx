@@ -8,8 +8,8 @@ import {
   Th,
   Thead,
   Tr,
+  Link as ChakraLink,
 } from "@chakra-ui/react";
-import styled from "@emotion/styled";
 import { Project, Submission } from "@prisma/client";
 import Link from "next/link";
 import { RiExternalLinkLine } from "react-icons/ri";
