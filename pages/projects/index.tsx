@@ -9,16 +9,15 @@ import ProjectsTable, {
 import prisma from "../../utils/db";
 
 import Link from "next/link";
-import { Link as ChakraLink } from '@chakra-ui/react';
+import { Link as ChakraLink } from "@chakra-ui/react";
 import { Button } from "@chakra-ui/react";
 
 import SplashContent from "../../components/SplashContent";
 import SubmissionsTable, {
   SubmissionAndProject,
 } from "../../components/SubmissionsTable";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import styled from "@emotion/styled";
-
 
 type PropTypes = ProjectPropTypes & {
   submissions: SubmissionAndProject[];
@@ -27,7 +26,7 @@ type PropTypes = ProjectPropTypes & {
 
 // maxW={[200, 400, 600, 800, 1120]}
 
-const STOPS = [ "0", "0", "320px", "360px", "460px"];
+const STOPS = ["0", "0", "320px", "360px", "460px"];
 
 const Anchor = styled.a`
   text-decoration: none;
@@ -36,12 +35,21 @@ const Anchor = styled.a`
   }
 `;
 
-export default function ProjectsList({
-  projects,
-  submissions,
-  user,
-}: PropTypes) {
+export default function ProjectsList(props: PropTypes) {
+  const { user, projects } = props;
   const toast = useToast();
+
+  const [submissions, updateSubmissions] = useState<SubmissionAndProject[]>(
+    props.submissions
+  );
+  const onDeleteSubmission = (submission: SubmissionAndProject) => {
+    updateSubmissions(submissions.filter((x) => x.id !== submission.id));
+    toast({
+      title: 'Submission deleted.',
+      status: "success",
+    })
+  }
+  // XXX: will next.js ever send us a new version of props.submissions? If so, need a useEffect here.
 
   useEffect(() => {
     const showToast = (type: string, id: number) =>
@@ -49,12 +57,14 @@ export default function ProjectsList({
         title: `${type[0].toUpperCase() + type.substr(1)} created.`,
         description: (
           <Text>
-            { type === "project" && "You can change settings at any time. " }
-            { type === "project" && <Link href={`/projects/${id}`} passHref>
-              <Anchor>Edit project</Anchor>
-            </Link>}
-            { type === "submission" && "Thanks for choosing Sendy!" }
-          </Text>  
+            {type === "project" && "You can change settings at any time. "}
+            {type === "project" && (
+              <Link href={`/projects/${id}`} passHref>
+                <Anchor>Edit project</Anchor>
+              </Link>
+            )}
+            {type === "submission" && "Thanks for choosing Sendy!"}
+          </Text>
         ),
         status: "success",
         duration: 5000,
@@ -62,7 +72,7 @@ export default function ProjectsList({
 
     const flashMessage = window.localStorage.getItem("created");
     if (flashMessage) {
-      const [type, id] = flashMessage?.split(':');
+      const [type, id] = flashMessage?.split(":");
       showToast(type, +id);
       window.localStorage.removeItem("created");
     }
@@ -122,7 +132,7 @@ export default function ProjectsList({
           <Heading size="lg">My projects</Heading>
           <Box mt={4}>
             {projects.length === 0 && <Text>You have no projects.</Text>}
-            {projects.length > 0 && <ProjectsTable projects={projects} />}
+            {projects.length > 0 && <ProjectsTable projects={props.projects} />}
           </Box>
           {submissions.length > 0 && (
             <>
@@ -130,7 +140,10 @@ export default function ProjectsList({
                 My submissions
               </Heading>
               <Box mt={4}>
-                <SubmissionsTable submissions={submissions} />
+                <SubmissionsTable
+                  submissions={submissions}
+                  onDelete={onDeleteSubmission}
+                />
               </Box>
             </>
           )}
