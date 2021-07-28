@@ -85,10 +85,10 @@ export default async function handler(
           },
         }),
         userEmail
-          // share directly with submitter in the google ecosystem
-          ? drive.shareWithUser(fileId, userEmail)
-          // the user can save the web link they're given to access the file later anonymously
-          : drive.makePublicWithLink(fileId, true),
+          ? // share directly with submitter in the google ecosystem
+            drive.shareWithUser(fileId, userEmail)
+          : // the user can save the web link they're given to access the file later anonymously
+            drive.makePublicWithLink(fileId, true),
       ]);
 
       return res.status(200).json({ webLink });

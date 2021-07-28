@@ -123,7 +123,10 @@ export default function Submit({ project, user }: PropTypes) {
         user={user}
         titleRef={formEl}
         recording={recording || undefined}
-        onSuccess={(submissionId) => router.push(`/submission/${submissionId}`)}
+        onSuccess={(submissionId) => {
+          localStorage.setItem("created", `submission:${submissionId}`);
+          router.push('/projects');
+        }}
       />
     </>
   );

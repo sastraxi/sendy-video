@@ -31,7 +31,7 @@
     - [ ] profile badge + user menu
   - [ ] basic theme colours in chakra
   - [ ] basic fonts
-- [ ] post-submission page
+- [x] post-submission back to home page
   - [ ] "sucessfully uploaded" message
 - [x] project submission page (via unique url)
   - [x] https://github.com/google/google-api-javascript-client

@@ -10,7 +10,8 @@ export default function NewProject(_props: any) {
   const onSubmit = async (data: ProjectFormData) => {
     const response = await axios.post("/api/projects", data);
     const { projectId } = response.data;
-    router.push(`/projects/${projectId}`);
+    localStorage.setItem("created", `project:${projectId}`);
+    router.push('/projects');
   };
 
   return (

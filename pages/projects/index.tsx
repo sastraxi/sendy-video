@@ -1,4 +1,4 @@
-import { Box, Flex, Heading, Text } from "@chakra-ui/react";
+import { Box, Flex, Heading, Text, useToast } from "@chakra-ui/react";
 import { GetServerSideProps } from "next";
 import { User } from "next-auth";
 import { getSession } from "next-auth/client";
@@ -9,13 +9,16 @@ import ProjectsTable, {
 import prisma from "../../utils/db";
 
 import Link from "next/link";
+import { Link as ChakraLink } from '@chakra-ui/react';
 import { Button } from "@chakra-ui/react";
 
 import SplashContent from "../../components/SplashContent";
 import SubmissionsTable, {
   SubmissionAndProject,
 } from "../../components/SubmissionsTable";
-import { Submission } from "@prisma/client";
+import { useEffect } from "react";
+import styled from "@emotion/styled";
+
 
 type PropTypes = ProjectPropTypes & {
   submissions: SubmissionAndProject[];
@@ -26,11 +29,45 @@ type PropTypes = ProjectPropTypes & {
 
 const STOPS = [ "0", "0", "320px", "360px", "460px"];
 
+const Anchor = styled.a`
+  text-decoration: none;
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
 export default function ProjectsList({
   projects,
   submissions,
   user,
 }: PropTypes) {
+  const toast = useToast();
+
+  useEffect(() => {
+    const showToast = (type: string, id: number) =>
+      toast({
+        title: `${type[0].toUpperCase() + type.substr(1)} created.`,
+        description: (
+          <Text>
+            { type === "project" && "You can change settings at any time. " }
+            { type === "project" && <Link href={`/projects/${id}`} passHref>
+              <Anchor>Edit project</Anchor>
+            </Link>}
+            { type === "submission" && "Thanks for choosing Sendy!" }
+          </Text>  
+        ),
+        status: "success",
+        duration: 5000,
+      });
+
+    const flashMessage = window.localStorage.getItem("created");
+    if (flashMessage) {
+      const [type, id] = flashMessage?.split(':');
+      showToast(type, +id);
+      window.localStorage.removeItem("created");
+    }
+  }, [toast]);
+
   const newProjectButton = (
     <Link href="/projects/new" passHref>
       <Button
