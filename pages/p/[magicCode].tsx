@@ -53,9 +53,9 @@ type PropTypes = {
   project?: ProjectAndYourSubmissions;
   user?: User,
 };
-const Header = () => (
+const Header = ({ title }: { title: string }) => (
   <Head>
-    <title>sendy 📷 | submit</title>
+    <title>Sendy ✈️ | {title}</title>
     <meta
       name="description"
       content="Let your friends upload videos directly into your Google Drive"
@@ -73,7 +73,7 @@ export default function Submit({ project, user }: PropTypes) {
   if (!project) {
     return (
       <div>
-        <Header />
+        <Header title="Not found" />
         <SplashModal
           heading="Project not found"
           message="The link you clicked is invalid, or has expired."
@@ -88,7 +88,7 @@ export default function Submit({ project, user }: PropTypes) {
   ) {
     return (
       <div>
-        <Header />
+        <Header title="Submissions closed" />
         <SplashModal
           heading="Submissions closed"
           message="This project has reached its maximum number of submissions."
@@ -104,7 +104,7 @@ export default function Submit({ project, user }: PropTypes) {
   ) {
     return (
       <div>
-        <Header />
+        <Header title="Submissions closed" />
         <SplashModal
           heading="Submissions closed"
           message="You have already submitted the maximum number of submissions to this project."
@@ -132,7 +132,7 @@ export default function Submit({ project, user }: PropTypes) {
   // TODO: max length per submission
   return (
     <div>
-      <Header />
+      <Header title={project.name} />
       <VideoBanner
         maxLength={project.maxSubmissionLength || undefined}
         focusSubmissionForm={() => formEl.current?.focus()}

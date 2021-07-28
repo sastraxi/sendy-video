@@ -37,8 +37,12 @@
   - [x] https://github.com/google/google-api-javascript-client
   - [x] xfer after recording is finished
   - [x] reset (discard current video)
+  - [ ] "Need help?" button clears form
   - [ ] upload my own video
   - [ ] do enumeration for Capture Settings *after* getting permission
+  - [ ] friendly device names (no "Camera", "Microphone", "(Built-in)", or "(\hex+-\hex+)"
+  - [ ] correctly dispose of MediaStream when you navigate away (useEffect )
+  - [ ] file extension based on mimetype (e.g. webm instead of mp4)
 - [ ] extra constraints
   - [ ] max length
   - [ ] max size per submission
@@ -50,15 +54,15 @@
 - [x] set metadata on project submission
 - [x] share file with user
 - [x] api route to redirect to a submission's web link
-- [ ] sharing prisma instances / connection pooling: https://www.prisma.io/docs/support/help-articles/nextjs-prisma-client-dev-practices
-- [ ] correctly dispose of MediaStream
+- [ ] dev: sharing prisma instances / connection pooling: https://www.prisma.io/docs/support/help-articles/nextjs-prisma-client-dev-practices
 
 ## Deployment
 - [x] database
 - [x] vercel
 - [x] CD
-- [ ] CSP / vercel-analytics: https://stackoverflow.com/questions/65551212/using-csp-in-nextjs-nginx-and-material-uissr
-- [ ] CORS: www.sendy.video was passed in as Origin to Google, but they expected sendy.video
+- [x] CORS: www.sendy.video was passed in as Origin to Google, but they expected sendy.video
+- [x] CSP / vercel-analytics: https://stackoverflow.com/questions/65551212/using-csp-in-nextjs-nginx-and-material-uissr
+  - was just adblock
 
 ---
 
