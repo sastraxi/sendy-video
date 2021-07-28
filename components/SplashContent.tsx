@@ -55,7 +55,7 @@ const SplashContent = ({ user, content }: PropTypes) => (
         boxShadow="0px 12px 28px rgba(0, 0, 0, 0.09)"
       >
         <Avatar name={user.name!} src={user.image || undefined} />
-        <Box ml="3" flex={1}>
+        <Box ml="3" flexGrow={1} flexShrink={1}>
           <Text fontWeight="bold">{user.name}</Text>
           <Text fontSize="sm">{user.email}</Text>
         </Box>

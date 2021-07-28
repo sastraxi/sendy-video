@@ -34,9 +34,13 @@ const Anchor = styled.a`
 `;
 
 const ProjectRow = ({ project }: { project: ProjectAndSubmissionCount }) => {
-  const { hasCopied, onCopy } = useClipboard(`${window.location.origin}/p/${project.magicCode}`);
+  const { hasCopied, onCopy } = useClipboard(
+    `${typeof(window) !== 'undefined' ? window.location.origin : process.env.NEXTAUTH_URL}/p/${
+      project.magicCode
+    }`
+  );
   return (
-    <Tr key={project.id}>
+    <Tr>
       <Td>
         <Link href={`/projects/${project.id}`} passHref>
           <Anchor>{project.name}</Anchor>
@@ -51,8 +55,9 @@ const ProjectRow = ({ project }: { project: ProjectAndSubmissionCount }) => {
           size="xs"
           onClick={onCopy}
           leftIcon={<Icon as={HiOutlineClipboardCopy} w={4} h={4} mt="-2px" />}
+          colorScheme={hasCopied ? "pink" : undefined}
         >
-          { hasCopied ? 'Copied!' : 'Copy Link' }
+          {hasCopied ? "Copied!" : "Get link"}
         </Button>
         {project.folderWebLink && (
           <Link href={project.folderWebLink} passHref>
@@ -86,7 +91,7 @@ const ProjectsTable = ({ projects }: PropTypes) => {
       </Thead>
       <Tbody>
         {projects.map((project) => (
-          <ProjectRow project={project} />
+          <ProjectRow project={project} key={project.id} />
         ))}
       </Tbody>
     </Table>

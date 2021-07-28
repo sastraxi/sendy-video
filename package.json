@@ -20,6 +20,7 @@
     "axios": "^0.21.1",
     "chakra-ui-markdown-renderer": "^3.0.1",
     "chalk": "^4.1.1",
+    "date-fns": "^2.23.0",
     "framer-motion": "^4",
     "google-auth-library": "^7.3.0",
     "googleapis": "^82.0.0",

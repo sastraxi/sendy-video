@@ -112,6 +112,9 @@ model Submission {
   fileId      String?
   webLink     String?
   metadata    Json
+
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt @default(now())
   project     Project @relation(fields: [projectId], references: [id])
   user        User?   @relation(fields: [userEmail], references: [email])
 }

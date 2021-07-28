@@ -2,14 +2,14 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/client";
 import {
   createDriveClient,
-  PROVIDER_ID as GOOGLE_PROVIDER_ID
+  PROVIDER_ID as GOOGLE_PROVIDER_ID,
 } from "../../../services/drive";
 import prisma from "../../../utils/db";
 
 type Payload = {
-  submissionId: number,
-  fileId: string,
-  updateToken: string,
+  submissionId: number;
+  fileId: string;
+  updateToken: string;
 };
 
 type Data = {
@@ -59,7 +59,7 @@ export default async function handler(
         return res.status(400).end(`the submissionId provided is invalid`);
       }
       if (submission.updateToken !== payload.updateToken) {
-        return res.status(400).end('the updateToken provided is invalid');
+        return res.status(400).end("the updateToken provided is invalid");
       }
 
       const { fileId } = payload;
@@ -70,18 +70,26 @@ export default async function handler(
       const drive = await createDriveClient(project.user, googleAccount);
       const webLink = await drive.getWebLink(fileId);
 
-      await drive.updateMetadata(
-        fileId,
-        submission.metadata as { [key: string]: string }
-      );
-
-      if (userEmail) {
-        // share directly with submitter in the google ecosystem
-        await drive.shareWithUser(fileId, userEmail);
-      } else {
-        // the user can save the web link they're given to access the file later anonymously
-        await drive.makePublicWithLink(fileId, true);
-      }
+      await Promise.all([
+        drive.updateMetadata(
+          fileId,
+          submission.metadata as { [key: string]: string }
+        ),
+        prisma.submission.update({
+          where: {
+            id: submission.id,
+          },
+          data: {
+            fileId,
+            webLink,
+          },
+        }),
+        userEmail
+          // share directly with submitter in the google ecosystem
+          ? drive.shareWithUser(fileId, userEmail)
+          // the user can save the web link they're given to access the file later anonymously
+          : drive.makePublicWithLink(fileId, true),
+      ]);
 
       return res.status(200).json({ webLink });
     }

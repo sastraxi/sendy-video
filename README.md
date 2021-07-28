@@ -8,7 +8,7 @@
 - [ ] home page
   - [x] prototype as "projects page"
   - [x] list projects
-    - [ ] copy url
+    - [x] copy url
     - [ ] copy greeting
   - [ ] list submissions
     - [ ] list submissions-as-guest (attach to session?)
