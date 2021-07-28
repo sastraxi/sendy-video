@@ -180,6 +180,11 @@ const VideoBanner = (props: PropTypes) => {
     });
   }, []);
 
+  // FIXME: stop capturing
+  // useEffect(() => () => {
+  //   stream?.getTracks().forEach(t => t.stop());
+  // }, []);
+
   const startMonitoring = () => {
     if (!userMedia) {
       alert("!userMedia");
@@ -276,12 +281,7 @@ const VideoBanner = (props: PropTypes) => {
   }, [stream]);
 
   return (
-    <Container
-      centerContent
-      maxW="100%"
-      p={6}
-      bg={backdropGradient}
-    >
+    <Container centerContent maxW="100%" p={6} bg={backdropGradient}>
       <VideoBox
         maxLength={props.maxLength}
         startRecording={() => setState(RecorderState.RECORDING)}
@@ -296,7 +296,10 @@ const VideoBanner = (props: PropTypes) => {
       />
       <Container marginTop={4}>
         <Accordion allowToggle color="white">
-          <AccordionItem border={0} isDisabled={state === RecorderState.RECORDING}>
+          <AccordionItem
+            border={0}
+            isDisabled={state === RecorderState.RECORDING}
+          >
             {({ isExpanded }) => (
               <>
                 <AccordionButton>
