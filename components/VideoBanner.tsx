@@ -75,9 +75,22 @@ const DEFAULT_WIDTH = 1280;
 const DEFAULT_HEIGHT = 720;
 const DEFAULT_FRAMERATE = 30;
 
+const sanitizeDeviceLabel = (label: string) => {
+  const parts = label.split(" ");
+  return parts
+    .filter((p) => {
+      if (p.startsWith("(") && p.endsWith(")")) return null;
+      if (p.toLowerCase() === "camera") return null;
+      if (p.toLowerCase() === "microphone") return null;
+      return p;
+    })
+    .filter((x) => !!x)
+    .join(" ");
+};
+
 const VideoBanner = (props: PropTypes) => {
   const [state, setState] = useState(RecorderState.INITAL);
-  const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
+  const [devices, setDevices] = useState<MediaDeviceInfo[] | null>(null);
   const [userMedia, setUserMedia] = useState<UserMedia | null>(null);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(
@@ -132,9 +145,10 @@ const VideoBanner = (props: PropTypes) => {
     return 1;
   };
 
-  useEffect(() => {
+  const queryDevices = () =>
     navigator.mediaDevices.enumerateDevices().then((devices) => {
       setDevices(devices);
+      console.log("found devices", devices);
       const videoDeviceId = window.localStorage.getItem("defaultVideoDeviceId");
       const audioDeviceId = window.localStorage.getItem("defaultAudioDeviceId");
 
@@ -151,77 +165,77 @@ const VideoBanner = (props: PropTypes) => {
       );
 
       // TODO: localstorage defaults
-      setUserMedia({
+      const userMedia = {
         videoDevice: videoDevice
           ? {
               id: videoDevice.deviceId,
-              label: videoDevice.label,
+              label: sanitizeDeviceLabel(videoDevice.label),
             }
           : undefined,
         audioDevice: audioDevice
           ? {
               id: audioDevice.deviceId,
-              label: audioDevice.label,
+              label: sanitizeDeviceLabel(audioDevice.label),
             }
           : undefined,
         width: DEFAULT_WIDTH,
         height: DEFAULT_HEIGHT,
         framerate: DEFAULT_FRAMERATE,
-      });
-
-      // once we've loaded the devices, we can see if we can instantly move onto monitoring
-      navigator.permissions.query({ name: "camera" }).then((status) => {
-        const permitted = status.state === "granted";
-        if (permitted) {
-          // go straight to monitoring
-          setState(RecorderState.MONITORING);
-        }
-      });
+      };
+      setUserMedia(userMedia);
+      return userMedia;
     });
-  }, []);
 
-  // FIXME: stop capturing
-  // useEffect(() => () => {
-  //   stream?.getTracks().forEach(t => t.stop());
-  // }, []);
+  // stop capturing
+  useEffect(() => {
+    return () => {
+      stream?.getTracks().forEach((t) => t.stop());
+    };
+  }, [stream]);
+
+  const startStreaming = (userMedia: UserMedia) => {
+    console.log(userMedia);
+    return navigator.mediaDevices
+      .getUserMedia({
+        audio: userMedia.audioDevice
+          ? {
+              deviceId: userMedia.audioDevice.id,
+            }
+          : true,
+        video: userMedia.videoDevice
+          ? {
+              deviceId: userMedia.videoDevice.id,
+              width: userMedia.width,
+              height: userMedia.height,
+              frameRate: userMedia.framerate,
+            }
+          : true,
+      })
+      .then(
+        (stream) => {
+          console.log("stream", stream);
+          // FIXME: instead, add "permission requested" and "device enumeration" states?
+          if (!userMedia.videoDevice) {
+            queryDevices();
+          }
+          setStream(stream);
+        },
+        (err) => {
+          console.error("no stream :(", err);
+        }
+      );
+  };
 
   const startMonitoring = () => {
-    if (!userMedia) {
-      alert("!userMedia");
-      return;
-    }
-
     if (props.recording) {
       props.setRecording(null);
     }
 
-    if (!stream) {
-      navigator.mediaDevices
-        .getUserMedia({
-          audio: userMedia.audioDevice
-            ? {
-                deviceId: userMedia.audioDevice.id,
-              }
-            : false,
-          video: userMedia.videoDevice
-            ? {
-                deviceId: userMedia.videoDevice.id,
-                width: userMedia.width,
-                height: userMedia.height,
-                frameRate: userMedia.framerate,
-              }
-            : false,
-        })
-        .then(
-          (stream) => {
-            console.log("stream", stream);
-            setStream(stream);
-          },
-          (err) => {
-            console.error("no stream :(", err);
-            debugger;
-          }
-        );
+    if (stream) return;
+    if (!userMedia) {
+      return queryDevices().then(startStreaming);
+    } else {
+      return startStreaming(userMedia);
     }
   };
 
@@ -262,9 +276,11 @@ const VideoBanner = (props: PropTypes) => {
   useEffect(() => {
     switch (state) {
       case RecorderState.MONITORING:
-        return startMonitoring();
+        startMonitoring();
+        break;
       case RecorderState.RECORDING:
-        return startRecording();
+        startRecording();
+        break;
       case RecorderState.PLAYBACK:
         if (mediaRecorder) {
           mediaRecorder.stop();
@@ -276,9 +292,20 @@ const VideoBanner = (props: PropTypes) => {
 
   useEffect(() => {
     if (stream === null && state === RecorderState.MONITORING) {
-      return startMonitoring();
+      startMonitoring();
     }
-  }, [stream]);
+  }, [stream, state]);
+
+  useEffect(() => {
+    // see if we can instantly move onto monitoring
+    navigator.permissions.query({ name: "camera" }).then((status) => {
+      const permitted = status.state === "granted";
+      if (permitted) {
+        // go straight to monitoring
+        setState(RecorderState.MONITORING);
+      }
+    });
+  }, [state]);
 
   return (
     <Container centerContent maxW="100%" p={6} bg={backdropGradient}>
@@ -345,22 +372,23 @@ const VideoBanner = (props: PropTypes) => {
                         onChange={(c) =>
                           setVideoDevice({
                             id: c.target.value,
-                            label:
-                              c.target.options[c.target.selectedIndex]
-                                .innerText,
+                            label: sanitizeDeviceLabel(
+                              c.target.options[c.target.selectedIndex].innerText
+                            ),
                           })
                         }
                       >
-                        {devices
-                          .filter((d) => d.kind === "videoinput")
-                          .map((device) => (
-                            <option
-                              key={device.deviceId}
-                              value={device.deviceId}
-                            >
-                              {device.label}
-                            </option>
-                          ))}
+                        {devices &&
+                          devices
+                            .filter((d) => d.kind === "videoinput")
+                            .map((device) => (
+                              <option
+                                key={device.deviceId}
+                                value={device.deviceId}
+                              >
+                                {device.label}
+                              </option>
+                            ))}
                       </Select>
                     </FormControl>
                     <FormControl id="audioDevice" m={4}>
@@ -370,22 +398,23 @@ const VideoBanner = (props: PropTypes) => {
                         onChange={(c) =>
                           setAudioDevice({
                             id: c.target.value,
-                            label:
-                              c.target.options[c.target.selectedIndex]
-                                .innerText,
+                            label: sanitizeDeviceLabel(
+                              c.target.options[c.target.selectedIndex].innerText
+                            ),
                           })
                         }
                       >
-                        {devices
-                          .filter((d) => d.kind === "audioinput")
-                          .map((device) => (
-                            <option
-                              key={device.deviceId}
-                              value={device.deviceId}
-                            >
-                              {device.label}
-                            </option>
-                          ))}
+                        {devices &&
+                          devices
+                            .filter((d) => d.kind === "audioinput")
+                            .map((device) => (
+                              <option
+                                key={device.deviceId}
+                                value={device.deviceId}
+                              >
+                                {device.label}
+                              </option>
+                            ))}
                       </Select>
                     </FormControl>
                     <FormControl id="quality" m={4}>

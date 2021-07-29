@@ -47,10 +47,10 @@
   - [x] reset (discard current video)
   - [ ] "Need help?" button clears form
   - [ ] upload my own video
-  - [ ] do enumeration for Capture Settings *after* getting permission
-  - [ ] friendly device names (no "Camera", "Microphone", "(Built-in)", or "(\hex+-\hex+)"
-  - [ ] correctly dispose of MediaStream when you navigate away (useEffect?)
-  - [ ] file extension based on mimetype (e.g. webm instead of mp4)
+  - [x] do enumeration for Capture Settings *after* getting permission
+  - [x] friendly device names (no "Camera", "Microphone", "(Built-in)", or "(\hex+-\hex+)"
+  - [x] correctly dispose of MediaStream when you navigate away (useEffect?)
+  - [x] file extension based on mimetype (e.g. webm instead of mp4)
 - [ ] extra constraints
   - [ ] max length
   - [ ] max size per submission

@@ -74,9 +74,10 @@ export default async function handler(
         (a) => a.providerId === GOOGLE_PROVIDER_ID
       );
       const drive = await createDriveClient(project.user, googleAccount);
+      const ext = payload.mimeType.includes("video/webm") ? "webm" : "mp4";
       const { resumableUrl } = await drive.startResumableUpload(
         project.folderFileId!, // FIXME: if drive integration failed earlier...?
-        `${payload.title} (${new Date().toISOString()}).mp4`, // FIXME: better-named files
+        `${payload.title} (${new Date().toISOString()}).${ext}`,
         payload.fileSize,
         payload.mimeType
       );
