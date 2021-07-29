@@ -64,7 +64,6 @@ const DeleteButton = ({ submission, onDelete }: RowPropTypes) => {
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Are you sure?</ModalHeader>
-          <ModalCloseButton />
           <ModalBody>
             Your file will be deleted from Google Drive and may be
             unrecoverable. The project owner will no longer have access.
@@ -79,7 +78,7 @@ const DeleteButton = ({ submission, onDelete }: RowPropTypes) => {
             >
               Delete
             </Button>
-            <Button isDisabled={isDeleting} variant="ghost">
+            <Button isDisabled={isDeleting} onClick={onClose}>
               Cancel
             </Button>
           </ModalFooter>

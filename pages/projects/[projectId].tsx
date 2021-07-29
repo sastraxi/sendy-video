@@ -57,13 +57,25 @@ export default function EditProject(props: PropTypes) {
           </Heading>
           <Spacer />
 
+          <Link href={`/p/${project.magicCode}`} passHref>
+            <Button
+              ml={2}
+              as="a"
+              target="_blank"
+              size="md"
+              leftIcon={<Icon as={RiExternalLinkLine} />}
+            >
+              Submit
+            </Button>
+          </Link>
+
           {project.folderWebLink && (
             <Link href={project.folderWebLink} passHref>
               <Button
                 ml={2}
                 as="a"
                 target="_blank"
-                size="lg"
+                size="md"
                 leftIcon={<Icon as={RiExternalLinkLine} />}
                 colorScheme="blue"
               >
