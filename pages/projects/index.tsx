@@ -4,6 +4,7 @@ import { User } from "next-auth";
 import { getSession } from "next-auth/client";
 import Head from "next/head";
 import ProjectsTable, {
+  ProjectAndSubmissionCount,
   PropTypes as ProjectPropTypes,
 } from "../../components/ProjectsTable";
 import prisma from "../../utils/db";
@@ -36,19 +37,28 @@ const Anchor = styled.a`
 `;
 
 export default function ProjectsList(props: PropTypes) {
-  const { user, projects } = props;
+  const { user } = props;
   const toast = useToast();
 
+  const [projects, updateProjects] = useState<ProjectAndSubmissionCount[]>(
+    props.projects
+  );
   const [submissions, updateSubmissions] = useState<SubmissionAndProject[]>(
     props.submissions
   );
   const onDeleteSubmission = (submission: SubmissionAndProject) => {
     updateSubmissions(submissions.filter((x) => x.id !== submission.id));
+    updateProjects(
+      projects.map((p) => {
+        if (submission.project.id !== p.id) return p;
+        return { ...p, _count: { submissions: p._count!.submissions - 1 } };
+      })
+    );
     toast({
-      title: 'Submission deleted.',
+      title: "Submission deleted.",
       status: "success",
-    })
-  }
+    });
+  };
   // XXX: will next.js ever send us a new version of props.submissions? If so, need a useEffect here.
 
   useEffect(() => {
@@ -132,7 +142,7 @@ export default function ProjectsList(props: PropTypes) {
           <Heading size="lg">My projects</Heading>
           <Box mt={4}>
             {projects.length === 0 && <Text>You have no projects.</Text>}
-            {projects.length > 0 && <ProjectsTable projects={props.projects} />}
+            {projects.length > 0 && <ProjectsTable projects={projects} />}
           </Box>
           {submissions.length > 0 && (
             <>
@@ -173,6 +183,10 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
         select: { submissions: true },
       },
     },
+    orderBy: {
+      id: "desc", // TODO: order by latest submission, then latest creation date
+    },
+    take: 5,
   });
   const submissions = await prisma.submission.findMany({
     where: {
@@ -181,6 +195,10 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
     include: {
       project: true,
     },
+    orderBy: {
+      id: "desc",
+    },
+    take: 5,
   });
 
   const props: PropTypes = {

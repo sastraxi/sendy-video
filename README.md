@@ -11,16 +11,19 @@
     - [x] copy url
     - [ ] copy greeting
     - [ ] isOpen (project status column)
-    - [ ] make # submissions the external link to gdrive
+    - [x] make # submissions the external link to gdrive
+      - [x] update when submissions are deleted
     - [ ] calc (cache?) total size
   - [x] list submissions
     - [ ] list submissions-as-guest (attach to session?)
     - [x] direct links to videos
-    - [ ] delete submission (w/confirmation)
+    - [x] delete submission (w/confirmation)
+    - [ ] thumbnail (https://stackoverflow.com/a/45027853/220642)
   - [x] cool layout
   - [x] styling
-  - [ ] action buttons --> icon buttons
-  - [ ] only show 5 in each table; order by creation desc; paginator
+  - [x] action buttons --> icon buttons
+  - [x] only show 5 in each table; order by creation desc
+  - [ ] pagination
 - [x] create project page
   - [x] automatically create "Sendy Projects" folder
   - [x] automatically create sub-folder with project name (req. unique names per user)
