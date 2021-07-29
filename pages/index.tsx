@@ -1,4 +1,4 @@
-import { Box, Button, Flex, VStack, Heading, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, VStack, Heading, Text, useToast } from "@chakra-ui/react";
 import {
   ClientSafeProvider,
   getProviders,
@@ -6,6 +6,7 @@ import {
   signIn
 } from "next-auth/client";
 import Head from "next/head";
+import { useEffect } from "react";
 import SplashContent from "../components/SplashContent";
 
 // maxW={[200, 400, 600, 800, 1120]}
@@ -15,6 +16,31 @@ export default function Login({
 }: {
   providers: Record<string, ClientSafeProvider>;
 }) {
+  const toast = useToast();
+
+  // TODO: de-duplicate with projects/index.tsx
+  useEffect(() => {
+    const showToast = (type: string, id: number) =>
+      toast({
+        title: `${type[0].toUpperCase() + type.substr(1)} created.`,
+        description: (
+          <Text>
+            {type === "submission" && "Thanks for choosing Sendy!"}
+          </Text>
+        ),
+        status: "success",
+        duration: null,
+        isClosable: true, 
+      });
+
+    const flashMessage = window.localStorage.getItem("created");
+    if (flashMessage) {
+      const [type, id] = flashMessage?.split(":");
+      showToast(type, +id);
+      window.localStorage.removeItem("created");
+    }
+  }, [toast]);
+
   const introContent = (
     <Box>
       <Text align="center" fontSize="140%">

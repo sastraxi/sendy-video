@@ -62,7 +62,10 @@
 - [x] set metadata on project submission
 - [x] share file with user
 - [x] api route to redirect to a submission's web link
-- [x] dev: sharing prisma instances / connection pooling: https://www.prisma.io/docs/support/help-articles/nextjs-prisma-client-dev-practices
+- [x] dev: sharing prisma instances / connection pooling
+  - https://www.prisma.io/docs/support/help-articles/nextjs-prisma-client-dev-practices
+- [x] splash message on / for non-logged-in folks
+  - [ ] a better one that's more integrated into the view and not based on toast
 
 ## Deployment
 - [x] database

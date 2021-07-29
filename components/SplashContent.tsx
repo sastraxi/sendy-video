@@ -27,8 +27,8 @@ type PropTypes = {
 // maxW={[200, 400, 600, 800, 1120]}
 const SplashContent = ({ user, content }: PropTypes) => (
   <>
-    <Flex w="100%" alignItems="center" direction="column">
-      <Box pl={10} mb={0} filter="drop-shadow(4px 8px 0px rgba(0, 0, 0, .15))">
+    <Flex w="100%" alignItems="center" direction="column" mb={4}>
+      <Box pl={10} mb={0} mt={-8} filter="drop-shadow(4px 8px 0px rgba(0, 0, 0, .15))">
         <Image src={SendyLogo} width="200px" height="130px" alt="Sendy logo" />
       </Box>
       <Heading

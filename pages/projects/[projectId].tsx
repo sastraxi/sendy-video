@@ -50,7 +50,7 @@ export default function EditProject(props: PropTypes) {
       </Head>
 
       <TopMenu user={props.user} />
-      <Container maxW="960px" pt={12}>
+      <Container maxW="960px" p={0} pt={6}>
         <Flex>
           <Heading size="xl" mb={8}>
             {project.name}

@@ -31,7 +31,7 @@ export default function NewProject(props: PropTypes) {
       </Head>
 
       <TopMenu user={props.user} />
-      <Container maxW="960px" p={0} pt={12}>
+      <Container maxW="960px" p={0}>
         <Heading size="xl" mb={8}>
           New project
         </Heading>

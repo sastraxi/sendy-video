@@ -91,7 +91,7 @@ const ProjectForm = (props: PropTypes) => {
         </Box>
         <Box />
         <Box>
-          <FormControl id="markdown" isInvalid={!!errors.markdown}>
+          <FormControl id="markdown" isRequired isInvalid={!!errors.markdown}>
             <FormLabel>Instructions</FormLabel>
             <Textarea minH={240} {...register("markdown")} />
           </FormControl>
