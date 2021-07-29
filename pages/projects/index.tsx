@@ -29,13 +29,6 @@ type PropTypes = ProjectPropTypes & {
 
 const STOPS = ["0", "0", "320px", "360px", "460px"];
 
-const Anchor = styled.a`
-  text-decoration: none;
-  &:hover {
-    text-decoration: underline;
-  }
-`;
-
 export default function ProjectsList(props: PropTypes) {
   const { user } = props;
   const toast = useToast();
@@ -67,12 +60,8 @@ export default function ProjectsList(props: PropTypes) {
         title: `${type[0].toUpperCase() + type.substr(1)} created.`,
         description: (
           <Text>
-            {type === "project" && "You can change settings at any time. "}
-            {type === "project" && (
-              <Link href={`/projects/${id}`} passHref>
-                <Anchor>Edit project</Anchor>
-              </Link>
-            )}
+            {type === "project" &&
+              "You can modify its settings at any time by clicking on its name above. "}
             {type === "submission" && "Thanks for choosing Sendy!"}
           </Text>
         ),
@@ -103,7 +92,16 @@ export default function ProjectsList(props: PropTypes) {
   );
 
   const latestFive = (
-    <Badge colorScheme="blue" px={2} py={1} ml={1} title="Pagination coming soon" cursor="help">Latest 5</Badge>
+    <Badge
+      colorScheme="blue"
+      px={2}
+      py={1}
+      ml={1}
+      title="Pagination coming soon"
+      cursor="help"
+    >
+      Latest 5
+    </Badge>
   );
 
   return (

@@ -34,6 +34,7 @@ import { User } from "next-auth";
 import HelpContent from "../../components/HelpContent";
 
 import { BsArrowLeft } from 'react-icons/bs';
+import TopMenu from "../../components/TopMenu";
 
 export type ProjectAndYourSubmissions = Project & {
   _count: {
@@ -136,6 +137,7 @@ export default function Submit({ project, user }: PropTypes) {
   return (
     <div>
       <Header title={project.name} />
+      { user && <TopMenu user={user} /> }
       <VideoBanner
         maxLength={project.maxSubmissionLength || undefined}
         focusSubmissionForm={() => formEl.current?.focus()}

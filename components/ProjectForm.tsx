@@ -58,7 +58,11 @@ const ProjectForm = (props: PropTypes) => {
   });
   const watched = watch(); // TODO: useWatch and sub-components
   const onSubmit = handleSubmit(async (data: ProjectFormData) => {
-    if (!data.ssoMaxSubmissions) delete data.ssoMaxSubmissions;
+    if (!data.ssoMaxSubmissions) {
+      delete data.ssoMaxSubmissions;
+    } else {
+      data.ssoMaxSubmissions = +data.ssoMaxSubmissions;
+    }
     return props.onSubmit(data);
   });
 
