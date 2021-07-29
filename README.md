@@ -33,9 +33,9 @@
 - [x] view project page
   - [x] styling
 - [ ] common ui
-  - [ ] header
-    - [ ] logo-that-goes-home size={['md', 'sm']}
-    - [ ] profile badge + user menu
+  - [x] header
+    - [x] logo-that-goes-home size={['md', 'sm']}
+    - [x] profile badge + user menu
   - [ ] basic theme colours in chakra
   - [ ] basic fonts
   - [ ] mobile responsive ui
