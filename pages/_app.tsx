@@ -8,7 +8,7 @@ import LogRocket from 'logrocket';
 import setupLogRocketReact from 'logrocket-react';
 
 // only initialize when in the browser
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && process.env.NODE_ENV !== "development") {
   LogRocket.init('a1zphg/sendy-video');
   // plugins should also only be initialized when in the browser
   setupLogRocketReact(LogRocket);
