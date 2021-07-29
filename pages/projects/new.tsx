@@ -1,17 +1,25 @@
 import { Container, Heading } from "@chakra-ui/react";
 import axios from "axios";
+import { GetServerSideProps } from "next";
+import { User } from "next-auth";
+import { getSession } from "next-auth/client";
 import Head from "next/head";
 import { useRouter } from "next/router";
-import { ProjectFormData } from "../../models";
 import ProjectForm from "../../components/ProjectForm";
+import TopMenu from "../../components/TopMenu";
+import { ProjectFormData } from "../../models";
 
-export default function NewProject(_props: any) {
+type PropTypes = {
+  user: User;
+};
+
+export default function NewProject(props: PropTypes) {
   const router = useRouter();
   const onSubmit = async (data: ProjectFormData) => {
     const response = await axios.post("/api/projects", data);
     const { projectId } = response.data;
     localStorage.setItem("created", `project:${projectId}`);
-    router.push('/projects');
+    router.push("/projects");
   };
 
   return (
@@ -22,7 +30,8 @@ export default function NewProject(_props: any) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <Container maxW="960px" pt={12}>
+      <TopMenu user={props.user} />
+      <Container maxW="960px" p={0} pt={12}>
         <Heading size="xl" mb={8}>
           New project
         </Heading>
@@ -31,3 +40,16 @@ export default function NewProject(_props: any) {
     </div>
   );
 }
+
+export const getServerSideProps: GetServerSideProps = async ({ req }) => {
+  const session = await getSession({ req });
+  if (!session?.user) {
+    return {
+      redirect: {
+        permanent: false,
+        destination: "/",
+      },
+    };
+  }
+  return { props: { user: session.user } };
+};

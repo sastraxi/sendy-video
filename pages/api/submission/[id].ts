@@ -48,10 +48,13 @@ export default async function handler(
           project: { select: { userEmail: true } },
         },
       });
+      if (!submission) {
+        return res.status(400).end("id must be a valid submission id");
+      }
 
       // submission owners and the owner of the project submitted to have access
       if (
-        submission.user.email !== userEmail &&
+        submission.user!.email !== userEmail && // FIXME: why is this nullable?
         submission.project.userEmail !== userEmail
       ) {
         return res

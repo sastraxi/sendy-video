@@ -7,14 +7,15 @@ import {
   Spacer,
 } from "@chakra-ui/react";
 import { Project } from "@prisma/client";
-import axios from "axios";
 import { GetServerSideProps } from "next";
+import { User } from "next-auth";
 import { getSession } from "next-auth/client";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { RiExternalLinkLine } from "react-icons/ri";
 import ProjectForm from "../../components/ProjectForm";
+import TopMenu from "../../components/TopMenu";
 import { ProjectFormData } from "../../models";
 import prisma from "../../utils/db";
 
@@ -29,13 +30,14 @@ type ProjectAndSubmissionCount = Project & {
 
 type PropTypes = {
   project: ProjectAndSubmissionCount;
+  user: User;
 };
 
 export default function EditProject(props: PropTypes) {
   const router = useRouter();
   const onSubmit = async (data: ProjectFormData) => {
     // TODO: remove name, add back id
-    alert("Allan please implement PATCH /api/project/:id")
+    alert("Allan please implement PATCH /api/project/:id");
   };
 
   const { project } = props;
@@ -47,6 +49,7 @@ export default function EditProject(props: PropTypes) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
+      <TopMenu user={props.user} />
       <Container maxW="960px" pt={12}>
         <Flex>
           <Heading size="xl" mb={8}>
@@ -117,5 +120,5 @@ export const getServerSideProps: GetServerSideProps = async ({
       },
     };
   }
-  return { props: { project } };
+  return { props: { project, user: session.user } };
 };

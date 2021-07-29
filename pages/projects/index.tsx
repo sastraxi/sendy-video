@@ -11,7 +11,7 @@ import prisma from "../../utils/db";
 
 import Link from "next/link";
 import { Link as ChakraLink } from "@chakra-ui/react";
-import { Button } from "@chakra-ui/react";
+import { Button, Badge } from "@chakra-ui/react";
 
 import SplashContent from "../../components/SplashContent";
 import SubmissionsTable, {
@@ -102,6 +102,10 @@ export default function ProjectsList(props: PropTypes) {
     </Link>
   );
 
+  const latestFive = (
+    <Badge colorScheme="blue" px={2} py={1} ml={1} title="Pagination coming soon" cursor="help">Latest 5</Badge>
+  );
+
   return (
     <div>
       <Head>
@@ -139,7 +143,7 @@ export default function ProjectsList(props: PropTypes) {
           left={STOPS}
           overflowY="auto"
         >
-          <Heading size="lg">My projects</Heading>
+          <Heading size="lg">My projects {latestFive}</Heading>
           <Box mt={4}>
             {projects.length === 0 && <Text>You have no projects.</Text>}
             {projects.length > 0 && <ProjectsTable projects={projects} />}
@@ -147,7 +151,7 @@ export default function ProjectsList(props: PropTypes) {
           {submissions.length > 0 && (
             <>
               <Heading size="lg" mt={8}>
-                My submissions
+                My submissions {latestFive}
               </Heading>
               <Box mt={4}>
                 <SubmissionsTable
