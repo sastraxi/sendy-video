@@ -298,14 +298,16 @@ const VideoBanner = (props: PropTypes) => {
 
   useEffect(() => {
     // see if we can instantly move onto monitoring
-    navigator.permissions.query({ name: "camera" }).then((status) => {
-      const permitted = status.state === "granted";
-      if (permitted) {
-        // go straight to monitoring
-        setState(RecorderState.MONITORING);
-      }
-    });
-  }, [state]);
+    if (!userMedia) {
+      navigator.permissions.query({ name: "camera" }).then((status) => {
+        const permitted = status.state === "granted";
+        if (permitted) {
+          // go straight to monitoring
+          setState(RecorderState.MONITORING);
+        }
+      });
+    }
+  }, [state, userMedia]);
 
   return (
     <Container centerContent maxW="100%" p={6} bg={backdropGradient}>

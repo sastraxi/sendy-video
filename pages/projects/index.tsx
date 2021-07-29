@@ -1,24 +1,27 @@
-import { Box, Flex, Heading, Text, useToast } from "@chakra-ui/react";
+import {
+  Badge,
+  Box,
+  Button,
+  Flex,
+  Heading,
+  Text,
+  useToast,
+} from "@chakra-ui/react";
 import { GetServerSideProps } from "next";
 import { User } from "next-auth";
 import { getSession } from "next-auth/client";
 import Head from "next/head";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import ProjectsTable, {
   ProjectAndSubmissionCount,
   PropTypes as ProjectPropTypes,
 } from "../../components/ProjectsTable";
-import prisma from "../../utils/db";
-
-import Link from "next/link";
-import { Link as ChakraLink } from "@chakra-ui/react";
-import { Button, Badge } from "@chakra-ui/react";
-
 import SplashContent from "../../components/SplashContent";
 import SubmissionsTable, {
   SubmissionAndProject,
 } from "../../components/SubmissionsTable";
-import { useEffect, useState } from "react";
-import styled from "@emotion/styled";
+import prisma from "../../utils/db";
 
 type PropTypes = ProjectPropTypes & {
   submissions: SubmissionAndProject[];
