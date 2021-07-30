@@ -299,7 +299,9 @@ const VideoBanner = (props: PropTypes) => {
   useEffect(() => {
     // see if we can instantly move onto monitoring
     if (!userMedia) {
-      navigator.permissions.query({ name: "camera" }).then((status) => {
+      navigator.permissions?.query({
+        name: "camera",
+      }).then((status) => {
         const permitted = status.state === "granted";
         if (permitted) {
           // go straight to monitoring
