@@ -8,6 +8,7 @@
 - [ ] home page
   - [x] prototype as "projects page"
   - [x] list projects
+    - [ ] better visual style
     - [x] copy url
     - [ ] copy greeting
     - [ ] isOpen (project status column)
@@ -30,8 +31,9 @@
     - folder can be moved without losing connectivity due to gdrive file IDs
   - [x] styling
   - [x] "sucessfully created" message
-- [x] view project page
+- [ ] view project page
   - [x] styling
+  - [ ] delete project
 - [ ] common ui
   - [x] header
     - [x] logo-that-goes-home size={['md', 'sm']}
@@ -41,7 +43,7 @@
   - [ ] mobile responsive ui
 - [x] post-submission back to home page
   - [x] "sucessfully uploaded" message
-- [x] project submission page (via unique url)
+- [ ] project submission page (via unique url)
   - [x] https://github.com/google/google-api-javascript-client
   - [x] xfer after recording is finished
   - [x] reset (discard current video)
@@ -66,6 +68,9 @@
   - https://www.prisma.io/docs/support/help-articles/nextjs-prisma-client-dev-practices
 - [x] splash message on / for non-logged-in folks
   - [ ] a better one that's more integrated into the view and not based on toast
+- [ ] use JWTs to improve performance (see https://github.com/nextauthjs/next-auth/issues/2433 and https://github.com/nextauthjs/next-auth/issues/1535)
+  - [future] upgrade to next-auth v4.1, which has perf fixes
+- [ ] three-step
 
 ## Deployment
 - [x] database

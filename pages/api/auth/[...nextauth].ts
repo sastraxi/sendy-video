@@ -46,6 +46,7 @@ export default NextAuth({
   // https://next-auth.js.org/configuration/callbacks
   callbacks: {
     async signIn(user, account, profile) {
+      // FIXME: apparently user.sub is the user id?
       console.log('signed in with account', profile, account);
       if (!user.email) {
         console.error('Tried to sign in with user without an email', user);
@@ -56,7 +57,7 @@ export default NextAuth({
       // https://github.com/nextauthjs/adapters/issues/48
       const { expires_in, accessToken } = account;
       const expiresAt = expires_in ? new Date(
-        Date.now() + expires_in! * SEC_TO_MS
+        Date.now() + expires_in * SEC_TO_MS
       ) : undefined;
       await prisma.accessToken.upsert({
         where: { token: accessToken },
@@ -114,7 +115,7 @@ export default NextAuth({
               })
             ]);
           } else {
-            console.warn('Not updating accessToken table as refresh failed', refreshedToken);
+            console.error('Not updating accessToken table as refresh failed', refreshedToken);
           }
           return {
             ...session,
