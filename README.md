@@ -1,4 +1,31 @@
-## Things to do
+# sendy video
+
+[Try it out!](https://sendy.video) (experiencing [slow cold start times](https://github.com/sastraxi/sendy-video/issues/1)).
+
+<p align="center">
+  <img src="docs/sendy.png">
+</p>
+
+Allow folks with a magic link to record videos to your Google Drive. Use it to simplify your workflow for gathering testimonial videos from customers, friends, and colleagues. Some use cases:
+
+* birthday cards
+* get well / sympathy cards
+* company kickoff events
+* welcoming a new employee
+
+---
+
+## Technologies and platforms used
+- typescript
+- next.js
+- prisma + postgres
+- chakra ui (highly recommended)
+- next-auth (would not recommend)
+- logrocket for monitoring
+
+---
+
+## Big ol' todo list
 - [x] welcome page and "login with Google" link
 - [x] add next-auth
   - [x] set up postgres connection
